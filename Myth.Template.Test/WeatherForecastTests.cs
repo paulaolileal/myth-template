@@ -1,4 +1,6 @@
-﻿using FluentAssertions;
+using System;
+using System.Net;
+using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Myth.Exceptions;
@@ -14,257 +16,323 @@ using Myth.Template.Domain.Models;
 using Myth.Testing.Extensions;
 using Myth.Testing.Repositories;
 using Myth.ValueObjects;
-using System;
-using System.Net;
 
-namespace Myth.Template.Test {
-	public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
-		private readonly WeatherForecastController _controller;
-		public WeatherForecastTests( ) : base( ) {
-			AddServices( ( services ) => {
-				services.AddLogging( );
-				services.AddRepositories( );
-				services.AddUnitOfWorkForContext<ForecastContext>( );
-				services.AddScopedServiceProvider( );
-				services.AddMorph( );
-				services.AddGuard( );
-				services.AddFlow( conf => conf
-					.UseExceptionFilter<ValidationException>( )
-					.UseActions( x => x
-						.UseInMemory( )
-						.ScanAssemblies(
-						typeof( GetAllWeatherForecastsQueryHandler ).Assembly ) )
-					);
-			} );
+namespace Myth.Template.Test;
 
-			_controller = CreateInstance<WeatherForecastController>( );
-		}
+/// <summary>
+/// Integration test suite for the WeatherForecastController API endpoints.
+/// Tests all CRUD operations including validation scenarios, error handling, and business logic.
+/// Inherits from BaseDatabaseTests to provide in-memory database testing capabilities.
+/// </summary>
+public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
+	/// <summary>
+	/// The controller instance under test, initialized with all required dependencies.
+	/// </summary>
+	private readonly WeatherForecastController _controller;
 
-		private async Task MockData( DateOnly? minDate = null, DateOnly? maxDate = null ) {
-			var random = new Random( );
-			maxDate ??= DateOnly.FromDateTime( DateTime.UtcNow );
-			minDate ??= maxDate.Value.AddDays( -1000 );
-			var amount = maxDate.Value.DayNumber - minDate.Value.DayNumber;
+	/// <summary>
+	/// Initializes a new instance of the WeatherForecastTests class.
+	/// Sets up the dependency injection container with all required services for testing.
+	/// </summary>
+	public WeatherForecastTests( ) : base( ) {
+		AddServices( ( services ) => {
+			services.AddLogging( );
+			services.AddRepositories( );
+			services.AddUnitOfWorkForContext<ForecastContext>( );
+			services.AddScopedServiceProvider( );
+			services.AddMorph( );
+			services.AddGuard( );
+			services.AddFlow( conf => conf
+				.UseExceptionFilter<ValidationException>( )
+				.UseActions( x => x
+					.UseInMemory( )
+					.ScanAssemblies(
+					typeof( GetAllWeatherForecastsQueryHandler ).Assembly ) )
+				);
+		} );
 
-			var weatherForecasts = Enumerable.Range( 0, amount ).Select( i => {
-				var date = maxDate.Value.AddDays( i - 1 );
-				var temperatureC = random.Next( -20, 55 );
-				var summaries = Enum
-					.GetValues( typeof( Summary ) )
-					.Cast<Summary>( )
-					.ToArray( );
-				var summary = summaries[ random.Next( summaries.Length ) ];
+		_controller = CreateInstance<WeatherForecastController>( );
+	}
 
-				return new WeatherForecast( date, temperatureC, summary );
-			} );
+	/// <summary>
+	/// Creates mock weather forecast data in the test database.
+	/// Generates weather forecasts with random data within the specified date range.
+	/// </summary>
+	/// <param name="minDate">The minimum date for generated forecasts. Defaults to 1000 days before maxDate if null.</param>
+	/// <param name="maxDate">The maximum date for generated forecasts. Defaults to current date if null.</param>
+	/// <returns>A task that represents the asynchronous mock data creation operation.</returns>
+	private async Task MockData( DateOnly? minDate = null, DateOnly? maxDate = null ) {
+		var random = new Random( );
+		maxDate ??= DateOnly.FromDateTime( DateTime.UtcNow );
+		minDate ??= maxDate.Value.AddDays( -1000 );
+		var amount = maxDate.Value.DayNumber - minDate.Value.DayNumber;
 
-			await GetContext( ).AddRangeAsync( weatherForecasts, CancellationToken.None );
+		var weatherForecasts = Enumerable.Range( 0, amount ).Select( i => {
+			var date = maxDate.Value.AddDays( i - 1 );
+			var temperatureC = random.Next( -20, 55 );
+			var summaries = Enum
+				.GetValues( typeof( Summary ) )
+				.Cast<Summary>( )
+				.ToArray( );
+			var summary = summaries[ random.Next( summaries.Length ) ];
 
-			await SaveChangesAsync( CancellationToken.None );
-		}
+			return new WeatherForecast( date, temperatureC, summary );
+		} );
 
-		[Theory( )]
-		[InlineData( null, null, null, null, null, 1, 100 )]
-		[InlineData( null, "2000-01-01", "2025-01-30", -100, 100, 1, 100 )]
-		public async Task GetAsync_WithValidData_ShouldReturnValue( int? summaryId, string? minimumDate, string? maximumDate, int? minimumTemperature, int? maximumTemperature, int pageNumber, int pageSize ) {
-			// Arrange
-			Pagination pagination = new( pageNumber, pageSize );
-			Summary? summary = summaryId != null
-				? ( Summary )summaryId
-				: null;
-			DateOnly? minDate = minimumDate != null
-				? DateOnly.Parse( minimumDate )
-				: null;
-			DateOnly? maxDate = maximumDate != null
-				? DateOnly.Parse( maximumDate )
-				: null;
+		await GetContext( ).AddRangeAsync( weatherForecasts, CancellationToken.None );
 
-			await MockData( minDate, maxDate );
+		await SaveChangesAsync( CancellationToken.None );
+	}
 
-			// Act
-			var response = await _controller.GetAsync(
-				summary,
-				minDate,
-				maxDate,
-				minimumTemperature,
-				maximumTemperature,
-				pagination );
+	/// <summary>
+	/// Tests the GetAsync endpoint with valid parameters to ensure it returns paginated weather forecast data.
+	/// Verifies proper pagination, data integrity, and response structure.
+	/// </summary>
+	/// <param name="summaryId">Optional summary filter ID for testing specific weather conditions.</param>
+	/// <param name="minimumDate">Optional minimum date filter in string format.</param>
+	/// <param name="maximumDate">Optional maximum date filter in string format.</param>
+	/// <param name="minimumTemperature">Optional minimum temperature filter.</param>
+	/// <param name="maximumTemperature">Optional maximum temperature filter.</param>
+	/// <param name="pageNumber">The page number for pagination testing.</param>
+	/// <param name="pageSize">The page size for pagination testing.</param>
+	[Theory( )]
+	[InlineData( null, null, null, null, null, 1, 100 )]
+	[InlineData( null, "2000-01-01", "2025-01-30", -100, 100, 1, 100 )]
+	public async Task GetAsync_WithValidData_ShouldReturnValue( int? summaryId, string? minimumDate, string? maximumDate, int? minimumTemperature, int? maximumTemperature, int pageNumber, int pageSize ) {
+		// Arrange
+		Pagination pagination = new( pageNumber, pageSize );
+		Summary? summary = summaryId != null
+			? ( Summary )summaryId
+			: null;
+		DateOnly? minDate = minimumDate != null
+			? DateOnly.Parse( minimumDate )
+			: null;
+		DateOnly? maxDate = maximumDate != null
+			? DateOnly.Parse( maximumDate )
+			: null;
 
-			// Assert
+		await MockData( minDate, maxDate );
 
-			response.Should( ).BeStatusCodeOk( );
+		// Act
+		var response = await _controller.GetAsync(
+			summary,
+			minDate,
+			maxDate,
+			minimumTemperature,
+			maximumTemperature,
+			pagination );
 
-			var result = response.GetAs<Paginated<GetWeatherForecastResponse>>( );
+		// Assert
 
-			result!.TotalItems.Should( ).BeGreaterThan( 0 );
-			result.TotalPages.Should( ).BeGreaterThan( 0 );
-			result.PageNumber.Should( ).Be( pageNumber );
-			result.PageSize.Should( ).BeLessThanOrEqualTo( pageSize );
-			result.Items.Should( ).HaveCountGreaterThan( 0 );
-			result.Items.Should( ).AllSatisfy( item => {
-				item.TemperatureC.Should( ).BeInRange( -100, 100 );
-				item.Date.Should( ).BeOnOrAfter( DateOnly.MinValue );
-				item.Date.Should( ).BeOnOrBefore( DateOnly.MaxValue );
-			} );
-		}
+		response.Should( ).BeStatusCodeOk( );
 
-		[Theory( )]
-		[InlineData( null, null, null, null, null, -1, 10 )]
-		[InlineData( null, null, null, null, null, 1, -1 )]
-		[InlineData( null, null, null, null, 1000, 1, 10 )]
-		[InlineData( null, null, null, -1000, null, 1, 10 )]
-		[InlineData( null, "0001-01-01", null, null, null, 1, 10 )]
-		[InlineData( 99, null, null, null, null, 1, 10 )]
-		public async Task GetAsync_WithInvalidData_ShouldThrowException( int? summaryId, string? minimumDate, string? maximumDate, int? minimumTemperature, int? maximumTemperature, int pageNumber, int pageSize ) {
-			// Arrange
-			Summary? summary = summaryId != null ? ( Summary )summaryId : null;
-			DateOnly? minDate = minimumDate != null ? DateOnly.Parse( minimumDate ) : null;
-			DateOnly? maxDate = maximumDate != null ? DateOnly.Parse( maximumDate ) : null;
-			Pagination pagination = new( pageNumber, pageSize );
+		var result = response.GetAs<Paginated<GetWeatherForecastResponse>>( );
 
-			// Act
-			var action = async ( ) => await _controller.GetAsync(
-				summary,
-				minDate,
-				maxDate,
-				minimumTemperature,
-				maximumTemperature,
-				pagination );
+		result!.TotalItems.Should( ).BeGreaterThan( 0 );
+		result.TotalPages.Should( ).BeGreaterThan( 0 );
+		result.PageNumber.Should( ).Be( pageNumber );
+		result.PageSize.Should( ).BeLessThanOrEqualTo( pageSize );
+		result.Items.Should( ).HaveCountGreaterThan( 0 );
+		result.Items.Should( ).AllSatisfy( item => {
+			item.TemperatureC.Should( ).BeInRange( -100, 100 );
+			item.Date.Should( ).BeOnOrAfter( DateOnly.MinValue );
+			item.Date.Should( ).BeOnOrBefore( DateOnly.MaxValue );
+		} );
+	}
 
-			// Assert
-			var result = await action.Should( ).ThrowAsync<ValidationException>( );
+	/// <summary>
+	/// Tests the GetAsync endpoint with invalid parameters to ensure proper validation and error handling.
+	/// Verifies that validation exceptions are thrown for out-of-range values and invalid inputs.
+	/// </summary>
+	/// <param name="summaryId">Invalid summary ID for testing validation.</param>
+	/// <param name="minimumDate">Invalid minimum date in string format.</param>
+	/// <param name="maximumDate">Invalid maximum date in string format.</param>
+	/// <param name="minimumTemperature">Invalid minimum temperature value.</param>
+	/// <param name="maximumTemperature">Invalid maximum temperature value.</param>
+	/// <param name="pageNumber">Invalid page number for testing pagination validation.</param>
+	/// <param name="pageSize">Invalid page size for testing pagination validation.</param>
+	[Theory( )]
+	[InlineData( null, null, null, null, null, -1, 10 )]
+	[InlineData( null, null, null, null, null, 1, -1 )]
+	[InlineData( null, null, null, null, 1000, 1, 10 )]
+	[InlineData( null, null, null, -1000, null, 1, 10 )]
+	[InlineData( null, "0001-01-01", null, null, null, 1, 10 )]
+	[InlineData( 99, null, null, null, null, 1, 10 )]
+	public async Task GetAsync_WithInvalidData_ShouldThrowException( int? summaryId, string? minimumDate, string? maximumDate, int? minimumTemperature, int? maximumTemperature, int pageNumber, int pageSize ) {
+		// Arrange
+		Summary? summary = summaryId != null ? ( Summary )summaryId : null;
+		DateOnly? minDate = minimumDate != null ? DateOnly.Parse( minimumDate ) : null;
+		DateOnly? maxDate = maximumDate != null ? DateOnly.Parse( maximumDate ) : null;
+		Pagination pagination = new( pageNumber, pageSize );
 
-			var response = result.Which;
+		// Act
+		var action = async ( ) => await _controller.GetAsync(
+			summary,
+			minDate,
+			maxDate,
+			minimumTemperature,
+			maximumTemperature,
+			pagination );
 
-			response.Message.Should( ).NotBeEmpty( );
-			response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.BadRequest );
-			response.ValidationResult.IsValid.Should( ).BeFalse( );
-			response.ValidationResult.Errors.Should( ).HaveCount( 1 );
+		// Assert
+		var result = await action.Should( ).ThrowAsync<ValidationException>( );
 
-		}
+		var response = result.Which;
 
-		[Fact( )]
-		public async Task GetByIdAsync_WithValidId_ShouldReturnValue( ) {
-			// Arrange
-			await MockData( );
+		response.Message.Should( ).NotBeEmpty( );
+		response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.BadRequest );
+		response.ValidationResult.IsValid.Should( ).BeFalse( );
+		response.ValidationResult.Errors.Should( ).HaveCount( 1 );
 
-			var context = GetContext( );
+	}
 
-			var existingForecast = context
-				.Set<WeatherForecast>( )
-				.First( );
+	/// <summary>
+	/// Tests the GetByIdAsync endpoint with a valid weather forecast ID.
+	/// Verifies that the correct weather forecast is retrieved and all properties are properly mapped.
+	/// </summary>
+	[Fact( )]
+	public async Task GetByIdAsync_WithValidId_ShouldReturnValue( ) {
+		// Arrange
+		await MockData( );
 
-			// Act
-			var response = await _controller.GetByIdAsync( existingForecast.WeatherForecastId );
+		var context = GetContext( );
 
-			// Assert
-			response.Should( ).BeStatusCodeOk( );
+		var existingForecast = context
+			.Set<WeatherForecast>( )
+			.First( );
 
-			var result = response.GetAs<GetWeatherForecastResponse>( );
+		// Act
+		var response = await _controller.GetByIdAsync( existingForecast.WeatherForecastId );
 
-			result!.WeatherForecastId.Should( ).Be( existingForecast.WeatherForecastId );
-			result.Date.Should( ).Be( existingForecast.Date );
-			result.TemperatureC.Should( ).Be( existingForecast.TemperatureC );
-			result.TemperatureF.Should( ).Be( existingForecast.TemperatureF );
-			result.SummaryId.Should( ).Be( ( int )existingForecast.Summary );
-			result.SummaryDescription.Should( ).Be( existingForecast.Summary.ToString( ) );
-		}
+		// Assert
+		response.Should( ).BeStatusCodeOk( );
 
-		[Fact]
-		public async Task GetByIdAsync_WithDefaultId_ShouldReturnBadRequest( ) {
-			// Arrange
-			var nonExistentId = Guid.Empty;
+		var result = response.GetAs<GetWeatherForecastResponse>( );
 
-			// Act
-			var action = async ( ) => await _controller.GetByIdAsync( nonExistentId );
+		result!.WeatherForecastId.Should( ).Be( existingForecast.WeatherForecastId );
+		result.Date.Should( ).Be( existingForecast.Date );
+		result.TemperatureC.Should( ).Be( existingForecast.TemperatureC );
+		result.TemperatureF.Should( ).Be( existingForecast.TemperatureF );
+		result.SummaryId.Should( ).Be( ( int )existingForecast.Summary );
+		result.SummaryDescription.Should( ).Be( existingForecast.Summary.ToString( ) );
+	}
 
-			// Assert
-			var result = await action.Should( ).ThrowAsync<ValidationException>( );
+	/// <summary>
+	/// Tests the GetByIdAsync endpoint with a default (empty) GUID.
+	/// Verifies that proper validation occurs and a BadRequest response is returned.
+	/// </summary>
+	[Fact]
+	public async Task GetByIdAsync_WithDefaultId_ShouldReturnBadRequest( ) {
+		// Arrange
+		var nonExistentId = Guid.Empty;
 
-			var response = result.Which;
+		// Act
+		var action = async ( ) => await _controller.GetByIdAsync( nonExistentId );
 
-			response.Message.Should( ).NotBeEmpty( );
-			response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.BadRequest );
-			response.ValidationResult.IsValid.Should( ).BeFalse( );
-			response.ValidationResult.Errors.Should( ).HaveCount( 1 );
-		}
+		// Assert
+		var result = await action.Should( ).ThrowAsync<ValidationException>( );
 
-		[Fact]
-		public async Task GetByIdAsync_WithInvalidId_ShouldReturnBadRequest( ) {
-			// Arrange
-			var nonExistentId = Guid.NewGuid( );
+		var response = result.Which;
 
-			// Act
-			var action = async ( ) => await _controller.GetByIdAsync( nonExistentId );
+		response.Message.Should( ).NotBeEmpty( );
+		response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.BadRequest );
+		response.ValidationResult.IsValid.Should( ).BeFalse( );
+		response.ValidationResult.Errors.Should( ).HaveCount( 1 );
+	}
 
-			// Assert
-			var result = await action.Should( ).ThrowAsync<ValidationException>( );
+	/// <summary>
+	/// Tests the GetByIdAsync endpoint with a non-existent weather forecast ID.
+	/// Verifies that a NotFound response is returned when the requested resource doesn't exist.
+	/// </summary>
+	[Fact]
+	public async Task GetByIdAsync_WithInvalidId_ShouldReturnBadRequest( ) {
+		// Arrange
+		var nonExistentId = Guid.NewGuid( );
 
-			var response = result.Which;
+		// Act
+		var action = async ( ) => await _controller.GetByIdAsync( nonExistentId );
 
-			response.Message.Should( ).NotBeEmpty( );
-			response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.NotFound );
-			response.ValidationResult.IsValid.Should( ).BeFalse( );
-			response.ValidationResult.Errors.Should( ).HaveCount( 1 );
-		}
+		// Assert
+		var result = await action.Should( ).ThrowAsync<ValidationException>( );
 
-		[Theory( )]
-		[InlineData( "2025-01-01", 25, 4 )]
-		[InlineData( "2024-12-25", -5, 0 )]
-		[InlineData( "2024-06-15", 35, 7 )]
-		public async Task PostAsync_WithValidData_ShouldReturnCreated( string date, int temperatureC, int summaryId ) {
-			// Arrange
-			var request = new CreateWeatherForecastRequest {
-				Date = DateOnly.Parse( date ),
-				TemperatureC = temperatureC,
-				Summary = ( Summary )summaryId
-			};
+		var response = result.Which;
 
-			// Act
-			var response = await _controller.PostAsync( request );
+		response.Message.Should( ).NotBeEmpty( );
+		response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.NotFound );
+		response.ValidationResult.IsValid.Should( ).BeFalse( );
+		response.ValidationResult.Errors.Should( ).HaveCount( 1 );
+	}
 
-			// Assert
-			var result = response.Should( ).BeOfType<CreatedAtRouteResult>( ).Which;
+	/// <summary>
+	/// Tests the PostAsync endpoint with valid weather forecast data.
+	/// Verifies successful creation, proper response format, and data persistence in the database.
+	/// </summary>
+	/// <param name="date">Valid date string for the weather forecast.</param>
+	/// <param name="temperatureC">Valid temperature in Celsius.</param>
+	/// <param name="summaryId">Valid summary enumeration ID.</param>
+	[Theory( )]
+	[InlineData( "2025-01-01", 25, 4 )]
+	[InlineData( "2024-12-25", -5, 0 )]
+	[InlineData( "2024-06-15", 35, 7 )]
+	public async Task PostAsync_WithValidData_ShouldReturnCreated( string date, int temperatureC, int summaryId ) {
+		// Arrange
+		var request = new CreateWeatherForecastRequest {
+			Date = DateOnly.Parse( date ),
+			TemperatureC = temperatureC,
+			Summary = ( Summary )summaryId
+		};
 
-			result.Should( ).NotBeNull( );
-			result.StatusCode.Should( ).Be( ( int )HttpStatusCode.Created );
-			var resultBody = result.Value as WeatherForecastCreatedEvent;
+		// Act
+		var response = await _controller.PostAsync( request );
 
-			var context = await GetContextAsync( );
-			var item = context
-				.Set<WeatherForecast>( )
-				.First( x => x.WeatherForecastId == resultBody!.WeatherForecastId );
+		// Assert
+		var result = response.Should( ).BeOfType<CreatedAtRouteResult>( ).Which;
 
-			item!.Date.Should( ).Be( request.Date );
-			item.TemperatureC.Should( ).Be( request.TemperatureC );
-			item.Summary.Should( ).Be( request.Summary );
-		}
+		result.Should( ).NotBeNull( );
+		result.StatusCode.Should( ).Be( ( int )HttpStatusCode.Created );
+		var resultBody = result.Value as WeatherForecastCreatedEvent;
 
-		[Theory( )]
-		[InlineData( "0001-01-01", 25, 4 )]
-		[InlineData( "2025-01-01", -1000, 4 )]
-		[InlineData( "2025-01-01", 1000, 4 )]
-		[InlineData( "2025-01-01", 25, 99 )]
-		public async Task PostAsync_WithInvalidData_ShouldThrowException( string date, int temperatureC, int summaryId ) {
-			// Arrange
-			var request = new CreateWeatherForecastRequest {
-				Date = DateOnly.Parse( date ),
-				TemperatureC = temperatureC,
-				Summary = ( Summary )summaryId
-			};
+		var context = await GetContextAsync( );
+		var item = context
+			.Set<WeatherForecast>( )
+			.First( x => x.WeatherForecastId == resultBody!.WeatherForecastId );
 
-			// Act
-			var action = async ( ) => await _controller.PostAsync( request );
+		item!.Date.Should( ).Be( request.Date );
+		item.TemperatureC.Should( ).Be( request.TemperatureC );
+		item.Summary.Should( ).Be( request.Summary );
+	}
 
-			// Assert
-			var result = await action.Should( ).ThrowAsync<ValidationException>( );
+	/// <summary>
+	/// Tests the PostAsync endpoint with invalid weather forecast data.
+	/// Verifies that validation errors are properly caught and appropriate error responses are returned.
+	/// </summary>
+	/// <param name="date">Invalid date string for testing date validation.</param>
+	/// <param name="temperatureC">Invalid temperature value for testing temperature range validation.</param>
+	/// <param name="summaryId">Invalid summary ID for testing enumeration validation.</param>
+	[Theory( )]
+	[InlineData( "0001-01-01", 25, 4 )]
+	[InlineData( "2025-01-01", -1000, 4 )]
+	[InlineData( "2025-01-01", 1000, 4 )]
+	[InlineData( "2025-01-01", 25, 99 )]
+	public async Task PostAsync_WithInvalidData_ShouldThrowException( string date, int temperatureC, int summaryId ) {
+		// Arrange
+		var request = new CreateWeatherForecastRequest {
+			Date = DateOnly.Parse( date ),
+			TemperatureC = temperatureC,
+			Summary = ( Summary )summaryId
+		};
 
-			var response = result.Which;
+		// Act
+		var action = async ( ) => await _controller.PostAsync( request );
 
-			response.Message.Should( ).NotBeEmpty( );
-			response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.BadRequest );
-			response.ValidationResult.IsValid.Should( ).BeFalse( );
-			response.ValidationResult.Errors.Should( ).HaveCountGreaterThan( 0 );
-		}
+		// Assert
+		var result = await action.Should( ).ThrowAsync<ValidationException>( );
+
+		var response = result.Which;
+
+		response.Message.Should( ).NotBeEmpty( );
+		response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.BadRequest );
+		response.ValidationResult.IsValid.Should( ).BeFalse( );
+		response.ValidationResult.Errors.Should( ).HaveCountGreaterThan( 0 );
 	}
 }

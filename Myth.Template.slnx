@@ -1,4 +1,8 @@
 <Solution>
+  <Folder Name="/Itens de Solução/">
+    <File Path="README.md" />
+    <File Path="README.pt-br.md" />
+  </Folder>
   <Project Path="Myth.Template.API/Myth.Template.API.csproj" />
   <Project Path="Myth.Template.Application/Myth.Template.Application.csproj" />
   <Project Path="Myth.Template.Data/Myth.Template.Data.csproj" />

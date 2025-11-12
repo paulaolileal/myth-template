@@ -1,11 +1,16 @@
+using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
+using Myth.Constants;
+using Myth.DependencyInjection;
 using Myth.Exceptions;
 using Myth.Extensions;
 using Myth.Flow.Actions.Extensions;
 using Myth.Template.Application;
 using Myth.Template.Application.WeatherForecasts.Queries.GetAll;
 using Myth.Template.Data.Contexts;
-using System.Diagnostics.CodeAnalysis;
+using Myth.Template.ExternalData.Breweries.Interfaces;
+using Myth.Template.ExternalData.Breweries.Repositories;
 
 namespace Myth.Template.API;
 
@@ -27,7 +32,7 @@ internal class Program {
 
 		builder.Services.AddMorph( );
 
-		builder.Services.AddGuard( );
+		builder.Services.AddGuard( config => config.AutoGuardCommonExceptions( ) );
 
 		builder.Services.AddFlow( config => config
 			.UseLogging( )
@@ -39,6 +44,15 @@ internal class Program {
 				.ScanAssemblies(
 					typeof( GetAllWeatherForecastsQueryHandler ).Assembly ) ) );
 
+		builder.Services.AddRestFactory( )
+			.AddRestConfiguration( "brewery", conf => conf
+				.WithBaseUrl( builder.Configuration
+					.GetRequiredSection( "OpenBreweryDbAPI" )
+					.GetValue<string>( "BaseUrl" )! )
+				.WithBodyDeserialization( CaseStrategy.SnakeCase ) );
+
+		builder.Services.AddScoped<IBreweryRepository, BreweryRepository>( );
+
 		builder.Services.AddControllers( );
 
 		builder.Services.AddEndpointsApiExplorer( );
@@ -47,11 +61,10 @@ internal class Program {
 
 		builder.Services.AddHealthChecks( );
 
-		builder.Services.AddHostedService<InitializeMockedData>( );
+		builder.Services.AddHostedService<InitializeFakeData>( );
 
 		var app = builder.BuildApp( );
 
-		// Configure the HTTP request pipeline.
 		if ( app.Environment.IsDevelopment( ) ) {
 			app.UseSwagger( );
 			app.UseSwaggerUI( );

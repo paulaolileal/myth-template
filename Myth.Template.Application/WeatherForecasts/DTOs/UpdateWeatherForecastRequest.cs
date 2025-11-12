@@ -1,20 +1,21 @@
 using Myth.Interfaces;
 using Myth.Morph;
 using Myth.Template.Application.WeatherForecasts.Commands.Create;
+using Myth.Template.Application.WeatherForecasts.Commands.Update;
 using Myth.Template.Domain.Models;
 
 namespace Myth.Template.Application.WeatherForecasts.DTOs;
 
 /// <summary>
-/// Data transfer object representing a request to create a new weather forecast.
-/// This class implements IMorphable to enable transformation to CreateWeatherForecastCommand.
+/// Data transfer object representing a request to update an existing weather forecast.
+/// This record implements IMorphable to enable transformation to UpdateWeatherForecastCommand.
 /// </summary>
-public record CreateWeatherForecastRequest : IMorphableTo<CreateWeatherForecastCommand> {
+public record UpdateWeatherForecastRequest : IMorphableTo<UpdateWeatherForecastCommand> {
 	/// <summary>
-	/// Gets or sets the date for the weather forecast.
+	/// Gets or sets the unique identifier of the weather forecast to update.
 	/// </summary>
-	/// <value>The date for which the weather forecast is being created.</value>
-	public DateOnly Date { get; set; }
+	/// <value>The GUID identifier of the weather forecast to modify.</value>
+	public Guid WeatherForecastId { get; set; }
 
 	/// <summary>
 	/// Gets or sets the temperature in Celsius.
@@ -29,9 +30,9 @@ public record CreateWeatherForecastRequest : IMorphableTo<CreateWeatherForecastC
 	public Summary Summary { get; set; }
 
 	/// <summary>
-	/// Defines the morphing rules for transforming this DTO to a CreateWeatherForecastCommand.
+	/// Defines the morphing rules for transforming this DTO to an UpdateWeatherForecastCommand.
 	/// This method is called during the transformation process to map properties between objects.
 	/// </summary>
 	/// <param name="schema">The schema builder used to define property mappings.</param>
-	public void MorphTo( Schema<CreateWeatherForecastCommand> schema ) { }
+	public void MorphTo( Schema<UpdateWeatherForecastCommand> schema ) { }
 }

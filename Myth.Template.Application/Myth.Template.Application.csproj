@@ -7,18 +7,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Myth.Flow.Actions" Version="3.0.5-preview.9" />
+    <PackageReference Include="Myth.Flow.Actions" Version="3.0.5-preview.13" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Myth.Template.Data\Myth.Template.Data.csproj" />
     <ProjectReference Include="..\Myth.Template.Domain\Myth.Template.Domain.csproj" />
     <ProjectReference Include="..\Myth.Template.ExternalData\Myth.Template.ExternalData.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="WeatherForecasts\Commands\Delete\" />
-    <Folder Include="WeatherForecasts\Commands\Update\" />
   </ItemGroup>
 
 </Project>
