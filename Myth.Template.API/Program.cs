@@ -1,16 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore;
-using Myth.Constants;
-using Myth.DependencyInjection;
-using Myth.Exceptions;
 using Myth.Extensions;
-using Myth.Flow.Actions.Extensions;
+using Myth.Template.API.Extensions;
 using Myth.Template.Application;
-using Myth.Template.Application.WeatherForecasts.Queries.GetAll;
-using Myth.Template.Data.Contexts;
-using Myth.Template.ExternalData.Breweries.Interfaces;
-using Myth.Template.ExternalData.Breweries.Repositories;
 
 namespace Myth.Template.API;
 
@@ -21,43 +12,13 @@ internal class Program {
 		var builder = WebApplication.CreateBuilder( args );
 
 		// Add services to the container
-		builder.Services.AddDbContext<ForecastContext>( options => options
-			.UseInMemoryDatabase( "database" ), ServiceLifetime.Scoped, ServiceLifetime.Singleton );
+		builder.AddDatabase( );
 
-		builder.Services.AddRepositories( );
-
-		builder.Services.AddUnitOfWorkForContext<ForecastContext>( );
-
-		builder.Services.AddScopedServiceProvider( );
-
-		builder.Services.AddMorph( );
-
-		builder.Services.AddGuard( config => config.AutoGuardCommonExceptions( ) );
-
-		builder.Services.AddFlow( config => config
-			.UseLogging( )
-			.UseExceptionFilter<ValidationException>( )
-			.UseTelemetry( )
-			.UseRetry( 3 )
-			.UseActions( x => x
-				.UseInMemory( )
-				.ScanAssemblies(
-					typeof( GetAllWeatherForecastsQueryHandler ).Assembly ) ) );
-
-		builder.Services.AddRestFactory( )
-			.AddRestConfiguration( "brewery", conf => conf
-				.WithBaseUrl( builder.Configuration
-					.GetRequiredSection( "OpenBreweryDbAPI" )
-					.GetValue<string>( "BaseUrl" )! )
-				.WithBodyDeserialization( CaseStrategy.SnakeCase ) );
-
-		builder.Services.AddScoped<IBreweryRepository, BreweryRepository>( );
+		builder.AddMyth( );
 
 		builder.Services.AddControllers( );
 
-		builder.Services.AddEndpointsApiExplorer( );
-
-		builder.Services.AddSwaggerGen( );
+		builder.AddDocs( );
 
 		builder.Services.AddHealthChecks( );
 

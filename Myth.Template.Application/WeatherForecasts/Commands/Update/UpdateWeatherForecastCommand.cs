@@ -54,6 +54,7 @@ public class UpdateWeatherForecastCommand : ICommand, IValidatable<UpdateWeather
 	public void Validate( ValidationBuilder<UpdateWeatherForecastCommand> builder, ValidationContextKey? context = null ) {
 		builder.For( WeatherForecastId, rules => rules
 			.NotDefault( )
+			.SetStopOnFailure( )
 
 			.RespectAsync( ( weatherForecastId, cancellationToken, provider ) => provider
 				.GetRequiredService<IScopedService<IWeatherForecastRepository>>( )

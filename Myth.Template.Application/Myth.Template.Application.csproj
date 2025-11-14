@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Myth.Flow.Actions" Version="3.0.5-preview.13" />
+    <PackageReference Include="Myth.Flow.Actions" Version="3.0.5-preview.15" />
   </ItemGroup>
 
   <ItemGroup>

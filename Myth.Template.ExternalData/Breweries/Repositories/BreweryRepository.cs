@@ -7,7 +7,8 @@ using Myth.Interfaces;
 using Myth.Template.ExternalData.Breweries.DTOs;
 using Myth.Template.ExternalData.Breweries.Interfaces;
 
-namespace Myth.Template.ExternalData.Breweries.Repositories; 
+namespace Myth.Template.ExternalData.Breweries.Repositories;
+
 /// <summary>
 /// Repository implementation for accessing brewery data from external REST APIs.
 /// Uses the Myth REST client framework to communicate with brewery data providers.

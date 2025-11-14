@@ -14,7 +14,7 @@ namespace Myth.Template.Application.WeatherForecasts.Commands.Update;
 /// Retrieves the existing weather forecast, applies the updates, and persists the changes.
 /// Uses scoped services to ensure proper transaction handling and data consistency.
 /// </summary>
-public class UpdateWeatherForecastCommandHandler : ICommandHandler<UpdateWeatherForecastCommand> {
+public class UpdateWeatherForecastCommandHandlerUpdateWeatherForecastCommandHandler : ICommandHandler<UpdateWeatherForecastCommand> {
 	/// <summary>
 	/// Factory for creating service scopes to manage the lifetime of scoped dependencies.
 	/// </summary>

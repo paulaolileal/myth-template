@@ -38,6 +38,7 @@ public record DeleteWeatherForecastCommand : ICommand, IValidatable<DeleteWeathe
 	public void Validate( ValidationBuilder<DeleteWeatherForecastCommand> builder, ValidationContextKey? context = null ) {
 		builder.For( WeatherForecastId, rules => rules
 			.NotDefault( )
+			.SetStopOnFailure( )
 
 			.RespectAsync( ( weatherForecastId, cancellationToken, provider ) => provider
 				.GetRequiredService<IScopedService<IWeatherForecastRepository>>( )
