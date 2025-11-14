@@ -195,9 +195,9 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 		// Arrange
 		await MockData( );
 
-		var context = GetContext( );
 
-		var existingForecast = context
+		var existingForecast =
+			GetContext( )
 			.Set<WeatherForecast>( )
 			.First( );
 
@@ -334,5 +334,175 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 		response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.BadRequest );
 		response.ValidationResult.IsValid.Should( ).BeFalse( );
 		response.ValidationResult.Errors.Should( ).HaveCountGreaterThan( 0 );
+	}
+
+	/// <summary>
+	/// Tests the PutAsync endpoint with valid weather forecast data.
+	/// Verifies successful update, proper response format, and data persistence in the database.
+	/// </summary>
+	/// <param name="temperatureC">Valid temperature in Celsius for the update.</param>
+	/// <param name="summaryId">Valid summary enumeration ID for the update.</param>
+	[Theory( )]
+	[InlineData( 30, 4 )]
+	[InlineData( -10, 0 )]
+	[InlineData( 45, 7 )]
+	[InlineData( 0, 2 )]
+	public async Task PutAsync_WithValidData_ShouldReturnNoContent( int temperatureC, int summaryId ) {
+		// Arrange
+		await MockData( );
+
+		var existingForecast =
+			GetContext( )
+			.Set<WeatherForecast>( )
+			.First( );
+
+		var request = new UpdateWeatherForecastRequest {
+			WeatherForecastId = existingForecast.WeatherForecastId,
+			TemperatureC = temperatureC,
+			Summary = ( Summary )summaryId
+		};
+
+		// Act
+		var response = await _controller.PutAsync( request );
+
+		// Assert
+		var result = response.Should( ).BeOfType<NoContentResult>( ).Which;
+
+		result!.StatusCode.Should( ).Be( ( int )HttpStatusCode.NoContent );
+
+		// Verify data was updated in database
+		var updatedItem =
+			GetContext( )
+			.Set<WeatherForecast>( )
+			.First( x => x.WeatherForecastId == existingForecast.WeatherForecastId );
+
+		updatedItem.TemperatureC.Should( ).Be( temperatureC );
+		updatedItem.Summary.Should( ).Be( ( Summary )summaryId );
+		updatedItem.Date.Should( ).Be( existingForecast.Date ); // Date should not change
+	}
+
+	/// <summary>
+	/// Tests the PutAsync endpoint with invalid weather forecast data.
+	/// Verifies that validation errors are properly caught and appropriate error responses are returned.
+	/// </summary>
+	/// <param name="useDefaultId">Whether to use default GUID for testing ID validation.</param>
+	/// <param name="useNonExistentId">Whether to use non-existent GUID for testing existence validation.</param>
+	/// <param name="temperatureC">Temperature value for testing temperature range validation.</param>
+	/// <param name="summaryId">Summary ID for testing enumeration validation.</param>
+	[Theory( )]
+	[InlineData( true, false, 25, 4 )] // Default ID
+	[InlineData( false, true, 25, 4 )] // Non-existent ID
+	[InlineData( false, false, -1000, 4 )] // Temperature too low
+	[InlineData( false, false, 1000, 4 )] // Temperature too high
+	[InlineData( false, false, 25, 99 )] // Invalid summary
+	public async Task PutAsync_WithInvalidData_ShouldThrowException( bool useDefaultId, bool useNonExistentId, int temperatureC, int summaryId ) {
+		// Arrange
+		await MockData( );
+
+		var context = GetContext( );
+		var existingForecast = context
+			.Set<WeatherForecast>( )
+			.First( );
+
+		var weatherForecastId = useDefaultId ? Guid.Empty :
+			useNonExistentId ? Guid.NewGuid( ) :
+			existingForecast.WeatherForecastId;
+
+		var request = new UpdateWeatherForecastRequest {
+			WeatherForecastId = weatherForecastId,
+			TemperatureC = temperatureC,
+			Summary = ( Summary )summaryId
+		};
+
+		// Act
+		var action = async ( ) => await _controller.PutAsync( request );
+
+		// Assert
+		var result = await action.Should( ).ThrowAsync<ValidationException>( );
+
+		var response = result.Which;
+
+		response.Message.Should( ).NotBeEmpty( );
+		var expectedStatusCode = useNonExistentId ? HttpStatusCode.NotFound : HttpStatusCode.BadRequest;
+		response.ValidationResult.StatusCode.Should( ).Be( expectedStatusCode );
+		response.ValidationResult.IsValid.Should( ).BeFalse( );
+		response.ValidationResult.Errors.Should( ).HaveCountGreaterThan( 0 );
+	}
+
+	/// <summary>
+	/// Tests the DeleteAsync endpoint with valid weather forecast ID.
+	/// Verifies successful deletion and proper response format.
+	/// </summary>
+	[Fact]
+	public async Task DeleteAsync_WithValidId_ShouldReturnNoContent( ) {
+		// Arrange
+		await MockData( );
+
+		var context = GetContext( );
+		var existingForecast = context
+			.Set<WeatherForecast>( )
+			.First( );
+
+		var request = new DeleteWeatherForecastRequest {
+			WeatherForecastId = existingForecast.WeatherForecastId
+		};
+
+		// Act
+		var response = await _controller.DeleteAsync( request );
+
+		// Assert
+		response.Should( ).BeOfType<NoContentResult>( );
+
+		var result = response as NoContentResult;
+		result!.StatusCode.Should( ).Be( ( int )HttpStatusCode.NoContent );
+
+		// Verify data was deleted from database
+		var updatedContext = await GetContextAsync( );
+		var deletedItem = updatedContext
+			.Set<WeatherForecast>( )
+			.FirstOrDefault( x => x.WeatherForecastId == existingForecast.WeatherForecastId );
+
+		deletedItem.Should( ).BeNull( );
+	}
+
+	/// <summary>
+	/// Tests the DeleteAsync endpoint with invalid weather forecast ID.
+	/// Verifies that validation errors are properly caught and appropriate error responses are returned.
+	/// </summary>
+	/// <param name="useDefaultId">Whether to use default GUID for testing ID validation.</param>
+	/// <param name="useNonExistentId">Whether to use non-existent GUID for testing existence validation.</param>
+	[Theory( )]
+	[InlineData( true, false )] // Default ID
+	[InlineData( false, true )] // Non-existent ID
+	public async Task DeleteAsync_WithInvalidId_ShouldThrowException( bool useDefaultId, bool useNonExistentId ) {
+		// Arrange
+		await MockData( );
+
+		var context = GetContext( );
+		var existingForecast = context
+			.Set<WeatherForecast>( )
+			.First( );
+
+		var weatherForecastId = useDefaultId ? Guid.Empty :
+			useNonExistentId ? Guid.NewGuid( ) :
+			existingForecast.WeatherForecastId;
+
+		var request = new DeleteWeatherForecastRequest {
+			WeatherForecastId = weatherForecastId
+		};
+
+		// Act
+		var action = async ( ) => await _controller.DeleteAsync( request );
+
+		// Assert
+		var result = await action.Should( ).ThrowAsync<ValidationException>( );
+
+		var response = result.Which;
+
+		response.Message.Should( ).NotBeEmpty( );
+		var expectedStatusCode = useNonExistentId ? HttpStatusCode.NotFound : HttpStatusCode.BadRequest;
+		response.ValidationResult.StatusCode.Should( ).Be( expectedStatusCode );
+		response.ValidationResult.IsValid.Should( ).BeFalse( );
+		response.ValidationResult.Errors.Should( ).HaveCount( 1 );
 	}
 }
