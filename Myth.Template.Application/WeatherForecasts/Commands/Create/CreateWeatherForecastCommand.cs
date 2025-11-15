@@ -6,6 +6,8 @@ using Myth.Guard;
 using Myth.Interfaces;
 using Myth.ServiceProvider;
 using Myth.Specifications;
+using Myth.Template.Data.Resources;
+using Myth.Template.Domain.Constants;
 using Myth.Template.Domain.Interfaces;
 using Myth.Template.Domain.Models;
 using Myth.Template.Domain.Specifications;
@@ -62,8 +64,8 @@ public class CreateWeatherForecastCommand : ICommand<Guid>, IValidatable<CreateW
 				return await repository.ExecuteAsync( x => x.AllAsync( spec, ct ) );
 			} )
 			.WithStatusCode( HttpStatusCode.Conflict )
-			.WithCode( "CONFLICT" )
-			.WithMessage( "Already exists the informed date" ) );
+			.WithCode( ValidationCodes.Conflict )
+			.WithMessage( value => string.Format( Messages.Conflict, value ) ) );
 
 		builder.For( TemperatureC, rules => rules
 			.Between( -100, 100 ) );

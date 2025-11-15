@@ -4,6 +4,8 @@ using Myth.Builder;
 using Myth.Guard;
 using Myth.Interfaces;
 using Myth.ServiceProvider;
+using Myth.Template.Data.Resources;
+using Myth.Template.Domain.Constants;
 using Myth.Template.Domain.Interfaces;
 
 namespace Myth.Template.Application.WeatherForecasts.Commands.Delete;
@@ -43,8 +45,8 @@ public record DeleteWeatherForecastCommand : ICommand, IValidatable<DeleteWeathe
 			.RespectAsync( ( weatherForecastId, cancellationToken, provider ) => provider
 				.GetRequiredService<IScopedService<IWeatherForecastRepository>>( )
 				.ExecuteAsync( service => service.AnyAsync( x => x.WeatherForecastId == weatherForecastId, cancellationToken ) ) )
-			.WithMessage( "Weather forecast with the specified ID does not exist." )
-			.WithCode( "NOT_FOUND" )
+			.WithMessage( value => string.Format( Messages.NotFound, value ) )
+			.WithCode( ValidationCodes.NotFound )
 			.WithStatusCode( HttpStatusCode.NotFound ) );
 	}
 }

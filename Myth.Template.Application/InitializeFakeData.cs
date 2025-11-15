@@ -35,22 +35,14 @@ public class InitializeFakeData : IHostedService {
 	/// <param name="cancellationToken">Token to monitor for cancellation requests during the operation.</param>
 	/// <returns>A task that represents the asynchronous initialization operation.</returns>
 	public async Task StartAsync( CancellationToken cancellationToken ) {
-		var random = new Random( );
-
-		var weatherForecasts = Enumerable.Range( 0, 1000 ).Select( i => {
-			var date = DateOnly.FromDateTime( DateTime.Now ).AddDays( ( i + 1 ) * -1 );
-			var temperatureC = random.Next( -20, 55 );
-			var summaries = Summary.List.ToArray( );
-			var summary = summaries[ random.Next( summaries.Length ) ];
-			return new WeatherForecast( date, temperatureC, summary );
-		} );
+		var data = WeatherForecast.GenerateDataAsync( 1000, cancellationToken );
 
 		using var scope = _serviceScopeFactory.CreateScope( );
 		var context = scope.ServiceProvider.GetRequiredService<ForecastContext>( );
 
 		await context
 			.Set<WeatherForecast>( )
-			.AddRangeAsync( weatherForecasts, cancellationToken );
+			.AddRangeAsync( data, cancellationToken );
 
 		await context.SaveChangesAsync( cancellationToken );
 	}

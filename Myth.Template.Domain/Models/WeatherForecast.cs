@@ -96,4 +96,18 @@ public class WeatherForecast {
 
 		return this;
 	}
+
+	public static IEnumerable<WeatherForecast> GenerateDataAsync( int amount, CancellationToken cancellationToken ) {
+		var random = new Random( );
+
+		var weatherForecasts = Enumerable.Range( 0, 1000 ).Select( i => {
+			var date = DateOnly.FromDateTime( DateTime.Now ).AddDays( ( i + 1 ) * -1 );
+			var temperatureC = random.Next( -20, 55 );
+			var summaries = Summary.All.ToArray( );
+			var summary = summaries[ random.Next( summaries.Length ) ];
+			return new WeatherForecast( date, temperatureC, summary );
+		} );
+
+		return weatherForecasts;
+	}
 }

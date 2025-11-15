@@ -5,6 +5,8 @@ using Myth.Guard;
 using Myth.Interfaces;
 using Myth.ServiceProvider;
 using Myth.Template.Application.WeatherForecasts.DTOs;
+using Myth.Template.Data.Resources;
+using Myth.Template.Domain.Constants;
 using Myth.Template.Domain.Interfaces;
 
 namespace Myth.Template.Application.WeatherForecasts.Queries.GetById;
@@ -42,8 +44,8 @@ public class GetWeatherForecastByIdQuery : IValidatable<GetWeatherForecastByIdQu
 			.SetStopOnFailure( )
 
 			.RespectAsync( ( value, cancellationToken, provider ) => provider.GetRequiredService<IScopedService<IWeatherForecastRepository>>( ).ExecuteAsync( x => x.AnyAsync( x => x.WeatherForecastId == value, cancellationToken ) ) )
-			.WithMessage( value => $"The request item, with ID `{value}` doesn't exists" )
+			.WithMessage( value => string.Format( Messages.NotFound, value ) )
 			.WithStatusCode( HttpStatusCode.NotFound )
-			.WithCode( "NOT_FOUND" ) );
+			.WithCode( ValidationCodes.NotFound ) );
 	}
 }

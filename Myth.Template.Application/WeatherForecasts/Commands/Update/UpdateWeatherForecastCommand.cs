@@ -5,6 +5,8 @@ using Myth.Extensions;
 using Myth.Guard;
 using Myth.Interfaces;
 using Myth.ServiceProvider;
+using Myth.Template.Data.Resources;
+using Myth.Template.Domain.Constants;
 using Myth.Template.Domain.Interfaces;
 using Myth.Template.Domain.Models;
 
@@ -52,8 +54,8 @@ public class UpdateWeatherForecastCommand : ICommand, IValidatable<UpdateWeather
 			.RespectAsync( ( weatherForecastId, cancellationToken, provider ) => provider
 				.GetRequiredService<IScopedService<IWeatherForecastRepository>>( )
 				.ExecuteAsync( service => service.AnyAsync( x => x.WeatherForecastId == weatherForecastId, cancellationToken ) ) )
-			.WithMessage( "Weather forecast with the specified ID does not exist." )
-			.WithCode( "NOT_FOUND" )
+			.WithMessage( value => string.Format( Messages.NotFound, value ) )
+			.WithCode( ValidationCodes.NotFound )
 			.WithStatusCode( HttpStatusCode.NotFound ) );
 
 		builder.For( TemperatureC, rules => rules

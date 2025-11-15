@@ -70,16 +70,10 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 		minDate ??= maxDate.Value.AddDays( -1000 );
 		var amount = maxDate.Value.DayNumber - minDate.Value.DayNumber;
 
-		var weatherForecasts = Enumerable.Range( 0, amount ).Select( i => {
-			var date = maxDate.Value.AddDays( i - 1 );
-			var temperatureC = random.Next( -20, 55 );
-			var summaries = Summary.List.ToArray( );
-			var summary = summaries[ random.Next( summaries.Length ) ];
+		var data = WeatherForecast.GenerateDataAsync( amount, _cancellationToken );
 
-			return new WeatherForecast( date, temperatureC, summary );
-		} );
-
-		await GetContext( ).AddRangeAsync( weatherForecasts, CancellationToken.None );
+		await GetContext( )
+			.AddRangeAsync( data, CancellationToken.None );
 
 		await SaveChangesAsync( CancellationToken.None );
 	}
