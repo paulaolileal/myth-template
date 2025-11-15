@@ -51,7 +51,7 @@ public class UpdateWeatherForecastCommandHandler : ICommandHandler<UpdateWeather
 		var weatherForecast = await repository.FirstAsync( spec, cancellationToken );
 
 		weatherForecast
-			.ChangeSummary( command.Summary )
+			.ChangeSummary( Summary.FromName( command.Summary ) )
 			.ChangeTemperatureC( command.TemperatureC );
 
 		await repository.UpdateAsync( weatherForecast, cancellationToken );

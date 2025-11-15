@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Myth.Constants;
@@ -15,6 +16,7 @@ namespace Myth.Template.API.Extensions;
 /// <summary>
 /// Utils extensions for configuring services in the web application builder.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public static class ServiceCollectionExtensions {
 	/// <summary>
 	/// Configures and adds Myth framework services to the web application builder.

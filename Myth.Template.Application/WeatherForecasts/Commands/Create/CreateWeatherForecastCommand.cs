@@ -37,7 +37,7 @@ public class CreateWeatherForecastCommand : ICommand<Guid>, IValidatable<CreateW
 	/// Must be a valid enumeration value.
 	/// </summary>
 	/// <value>An enumeration value representing the weather conditions.</value>
-	public Summary Summary { get; private set; }
+	public string Summary { get; private set; } = null!;
 
 	/// <summary>
 	/// Validates the command properties according to business rules and data constraints.
@@ -69,7 +69,6 @@ public class CreateWeatherForecastCommand : ICommand<Guid>, IValidatable<CreateW
 			.Between( -100, 100 ) );
 
 		builder.For( Summary, rules => rules
-			.BeInEnum( )
-			.IsValidEnumValue( ) );
+			.NameExistsInConstant<Summary, int>( ) );
 	}
 }

@@ -96,17 +96,4 @@ public class WeatherForecast {
 
 		return this;
 	}
-
-	/// <summary>
-	/// Changes the date for this weather forecast.
-	/// This method updates the date and automatically sets the UpdatedAt timestamp.
-	/// </summary>
-	/// <param name="date">The new date for the weather forecast.</param>
-	/// <returns>The current WeatherForecast instance for method chaining.</returns>
-	public WeatherForecast ChangeDate( DateOnly date ) {
-		Date = date;
-		Update( );
-
-		return this;
-	}
 }

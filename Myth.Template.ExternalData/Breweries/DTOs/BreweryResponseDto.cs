@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ namespace Myth.Template.ExternalData.Breweries.DTOs;
 /// Data transfer object representing a brewery response from external API sources.
 /// Contains basic brewery information including identifier and name.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class BreweryResponseDto {
 	/// <summary>
 	/// Gets or sets the unique identifier for the brewery.

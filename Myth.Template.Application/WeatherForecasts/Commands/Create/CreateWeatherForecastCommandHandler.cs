@@ -40,7 +40,7 @@ public class CreateWeatherForecastCommandHandler : ICommandHandler<CreateWeather
 		var weatherForecast = new WeatherForecast(
 			command.Date,
 			command.TemperatureC,
-			command.Summary );
+			Summary.FromName( command.Summary ) );
 
 		var serviceProvider = _serviceScopeFactory.CreateScope( ).ServiceProvider;
 

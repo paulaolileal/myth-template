@@ -1,19 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Myth.Builder;
 using Myth.Extensions;
 using Myth.Guard;
 using Myth.Interfaces;
 using Myth.ServiceProvider;
-using Myth.Specifications;
 using Myth.Template.Domain.Interfaces;
 using Myth.Template.Domain.Models;
-using Myth.Template.Domain.Specifications;
 
 namespace Myth.Template.Application.WeatherForecasts.Commands.Update;
 
@@ -42,7 +35,7 @@ public class UpdateWeatherForecastCommand : ICommand, IValidatable<UpdateWeather
 	/// Must be a valid enumeration value.
 	/// </summary>
 	/// <value>An enumeration value representing the weather conditions.</value>
-	public Summary Summary { get; private set; }
+	public string Summary { get; private set; } = null!;
 
 	/// <summary>
 	/// Validates the command properties according to business rules and data constraints.
@@ -67,7 +60,6 @@ public class UpdateWeatherForecastCommand : ICommand, IValidatable<UpdateWeather
 			.Between( -100, 100 ) );
 
 		builder.For( Summary, rules => rules
-			.BeInEnum( )
-			.IsValidEnumValue( ) );
+			.NameExistsInConstant<Summary, int>( ) );
 	}
 }

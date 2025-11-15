@@ -71,7 +71,7 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// </remarks>
 	[HttpGet]
 	public async Task<IActionResult> GetAsync(
-		[FromQuery] Summary? summary,
+		[FromQuery] string? summary,
 		[FromQuery] DateOnly? minimumDate,
 		[FromQuery] DateOnly? maximumDate,
 		[FromQuery] int? minimumTemperature,

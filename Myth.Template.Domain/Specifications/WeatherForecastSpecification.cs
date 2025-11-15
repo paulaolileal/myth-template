@@ -16,7 +16,7 @@ public static class WeatherForecastSpecification {
 	/// <param name="specifications">The existing specification to extend.</param>
 	/// <param name="summary">Optional summary type to filter by. If null, no filter is applied.</param>
 	/// <returns>A new specification that includes the summary filter if applicable.</returns>
-	public static ISpec<WeatherForecast> WithSummary( this ISpec<WeatherForecast> specifications, Summary? summary ) => specifications.AndIf( summary != null, x => x.Summary == summary );
+	public static ISpec<WeatherForecast> WithSummary( this ISpec<WeatherForecast> specifications, string? summary ) => specifications.AndIf( !string.IsNullOrEmpty( summary ), x => x.Summary.Value == Summary.FromName( summary ).Value );
 
 	/// <summary>
 	/// Adds a specification to filter weather forecasts by their unique identifier.

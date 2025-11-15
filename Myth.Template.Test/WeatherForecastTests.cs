@@ -13,6 +13,8 @@ using Myth.Template.Application.WeatherForecasts.Events.Created;
 using Myth.Template.Application.WeatherForecasts.Queries.GetAll;
 using Myth.Template.Data.Contexts;
 using Myth.Template.Domain.Models;
+using Myth.Template.ExternalData.Breweries.Interfaces;
+using Myth.Template.Test.Repositories;
 using Myth.Testing.Extensions;
 using Myth.Testing.Repositories;
 using Myth.ValueObjects;
@@ -38,6 +40,7 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 		AddServices( ( services ) => {
 			services.AddLogging( );
 			services.AddRepositories( );
+			services.AddScoped<IBreweryRepository, BreweryRepositoryTest>( );
 			services.AddUnitOfWorkForContext<ForecastContext>( );
 			services.AddScopedServiceProvider( );
 			services.AddMorph( );
@@ -70,10 +73,7 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 		var weatherForecasts = Enumerable.Range( 0, amount ).Select( i => {
 			var date = maxDate.Value.AddDays( i - 1 );
 			var temperatureC = random.Next( -20, 55 );
-			var summaries = Enum
-				.GetValues( typeof( Summary ) )
-				.Cast<Summary>( )
-				.ToArray( );
+			var summaries = Summary.List.ToArray( );
 			var summary = summaries[ random.Next( summaries.Length ) ];
 
 			return new WeatherForecast( date, temperatureC, summary );
@@ -88,7 +88,7 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 	/// Tests the GetAsync endpoint with valid parameters to ensure it returns paginated weather forecast data.
 	/// Verifies proper pagination, data integrity, and response structure.
 	/// </summary>
-	/// <param name="summaryId">Optional summary filter ID for testing specific weather conditions.</param>
+	/// <param name="summary">Optional summary filter ID for testing specific weather conditions.</param>
 	/// <param name="minimumDate">Optional minimum date filter in string format.</param>
 	/// <param name="maximumDate">Optional maximum date filter in string format.</param>
 	/// <param name="minimumTemperature">Optional minimum temperature filter.</param>
@@ -98,12 +98,9 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 	[Theory( )]
 	[InlineData( null, null, null, null, null, 1, 100 )]
 	[InlineData( null, "2000-01-01", "2025-01-30", -100, 100, 1, 100 )]
-	public async Task GetAsync_WithValidData_ShouldReturnValue( int? summaryId, string? minimumDate, string? maximumDate, int? minimumTemperature, int? maximumTemperature, int pageNumber, int pageSize ) {
+	public async Task GetAsync_WithValidData_ShouldReturnValue( string? summary, string? minimumDate, string? maximumDate, int? minimumTemperature, int? maximumTemperature, int pageNumber, int pageSize ) {
 		// Arrange
 		Pagination pagination = new( pageNumber, pageSize );
-		Summary? summary = summaryId != null
-			? ( Summary )summaryId
-			: null;
 		DateOnly? minDate = minimumDate != null
 			? DateOnly.Parse( minimumDate )
 			: null;
@@ -144,7 +141,7 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 	/// Tests the GetAsync endpoint with invalid parameters to ensure proper validation and error handling.
 	/// Verifies that validation exceptions are thrown for out-of-range values and invalid inputs.
 	/// </summary>
-	/// <param name="summaryId">Invalid summary ID for testing validation.</param>
+	/// <param name="summary">Invalid summary ID for testing validation.</param>
 	/// <param name="minimumDate">Invalid minimum date in string format.</param>
 	/// <param name="maximumDate">Invalid maximum date in string format.</param>
 	/// <param name="minimumTemperature">Invalid minimum temperature value.</param>
@@ -157,10 +154,9 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 	[InlineData( null, null, null, null, 1000, 1, 10 )]
 	[InlineData( null, null, null, -1000, null, 1, 10 )]
 	[InlineData( null, "0001-01-01", null, null, null, 1, 10 )]
-	[InlineData( 99, null, null, null, null, 1, 10 )]
-	public async Task GetAsync_WithInvalidData_ShouldThrowException( int? summaryId, string? minimumDate, string? maximumDate, int? minimumTemperature, int? maximumTemperature, int pageNumber, int pageSize ) {
+	[InlineData( "xxxx", null, null, null, null, 1, 10 )]
+	public async Task GetAsync_WithInvalidData_ShouldThrowException( string? summary, string? minimumDate, string? maximumDate, int? minimumTemperature, int? maximumTemperature, int pageNumber, int pageSize ) {
 		// Arrange
-		Summary? summary = summaryId != null ? ( Summary )summaryId : null;
 		DateOnly? minDate = minimumDate != null ? DateOnly.Parse( minimumDate ) : null;
 		DateOnly? maxDate = maximumDate != null ? DateOnly.Parse( maximumDate ) : null;
 		Pagination pagination = new( pageNumber, pageSize );
@@ -269,17 +265,17 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 	/// </summary>
 	/// <param name="date">Valid date string for the weather forecast.</param>
 	/// <param name="temperatureC">Valid temperature in Celsius.</param>
-	/// <param name="summaryId">Valid summary enumeration ID.</param>
+	/// <param name="summary">Valid summary enumeration ID.</param>
 	[Theory( )]
-	[InlineData( "2025-01-01", 25, 4 )]
-	[InlineData( "2024-12-25", -5, 0 )]
-	[InlineData( "2024-06-15", 35, 7 )]
-	public async Task PostAsync_WithValidData_ShouldReturnCreated( string date, int temperatureC, int summaryId ) {
+	[InlineData( "2025-01-01", 25, "Hot" )]
+	[InlineData( "2024-12-25", -5, "Chilly" )]
+	[InlineData( "2024-06-15", 35, "Sweltering" )]
+	public async Task PostAsync_WithValidData_ShouldReturnCreated( string date, int temperatureC, string summary ) {
 		// Arrange
 		var request = new CreateWeatherForecastRequest {
 			Date = DateOnly.Parse( date ),
 			TemperatureC = temperatureC,
-			Summary = ( Summary )summaryId
+			Summary = summary
 		};
 
 		// Act
@@ -299,7 +295,7 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 
 		item!.Date.Should( ).Be( request.Date );
 		item.TemperatureC.Should( ).Be( request.TemperatureC );
-		item.Summary.Should( ).Be( request.Summary );
+		item.Summary.Should( ).Be( Summary.FromName( request.Summary ) );
 	}
 
 	/// <summary>
@@ -308,18 +304,18 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 	/// </summary>
 	/// <param name="date">Invalid date string for testing date validation.</param>
 	/// <param name="temperatureC">Invalid temperature value for testing temperature range validation.</param>
-	/// <param name="summaryId">Invalid summary ID for testing enumeration validation.</param>
+	/// <param name="summary">Invalid summary ID for testing enumeration validation.</param>
 	[Theory( )]
-	[InlineData( "0001-01-01", 25, 4 )]
-	[InlineData( "2025-01-01", -1000, 4 )]
-	[InlineData( "2025-01-01", 1000, 4 )]
-	[InlineData( "2025-01-01", 25, 99 )]
-	public async Task PostAsync_WithInvalidData_ShouldThrowException( string date, int temperatureC, int summaryId ) {
+	[InlineData( "0001-01-01", 25, "Hot" )]
+	[InlineData( "2025-01-01", -1000, "Hot" )]
+	[InlineData( "2025-01-01", 1000, "Hot" )]
+	[InlineData( "2025-01-01", 25, "Invalid" )]
+	public async Task PostAsync_WithInvalidData_ShouldThrowException( string date, int temperatureC, string summary ) {
 		// Arrange
 		var request = new CreateWeatherForecastRequest {
 			Date = DateOnly.Parse( date ),
 			TemperatureC = temperatureC,
-			Summary = ( Summary )summaryId
+			Summary = summary
 		};
 
 		// Act
@@ -341,13 +337,13 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 	/// Verifies successful update, proper response format, and data persistence in the database.
 	/// </summary>
 	/// <param name="temperatureC">Valid temperature in Celsius for the update.</param>
-	/// <param name="summaryId">Valid summary enumeration ID for the update.</param>
+	/// <param name="summary">Valid summary enumeration ID for the update.</param>
 	[Theory( )]
-	[InlineData( 30, 4 )]
-	[InlineData( -10, 0 )]
-	[InlineData( 45, 7 )]
-	[InlineData( 0, 2 )]
-	public async Task PutAsync_WithValidData_ShouldReturnNoContent( int temperatureC, int summaryId ) {
+	[InlineData( 30, "Hot" )]
+	[InlineData( -10, "Freezing" )]
+	[InlineData( 45, "Balmy" )]
+	[InlineData( 0, "Cool" )]
+	public async Task PutAsync_WithValidData_ShouldReturnNoContent( int temperatureC, string summary ) {
 		// Arrange
 		await MockData( );
 
@@ -359,7 +355,7 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 		var request = new UpdateWeatherForecastRequest {
 			WeatherForecastId = existingForecast.WeatherForecastId,
 			TemperatureC = temperatureC,
-			Summary = ( Summary )summaryId
+			Summary = summary
 		};
 
 		// Act
@@ -377,7 +373,7 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 			.First( x => x.WeatherForecastId == existingForecast.WeatherForecastId );
 
 		updatedItem.TemperatureC.Should( ).Be( temperatureC );
-		updatedItem.Summary.Should( ).Be( ( Summary )summaryId );
+		updatedItem.Summary.Should( ).Be( Summary.FromName( summary ) );
 		updatedItem.Date.Should( ).Be( existingForecast.Date ); // Date should not change
 	}
 
@@ -388,14 +384,14 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 	/// <param name="useDefaultId">Whether to use default GUID for testing ID validation.</param>
 	/// <param name="useNonExistentId">Whether to use non-existent GUID for testing existence validation.</param>
 	/// <param name="temperatureC">Temperature value for testing temperature range validation.</param>
-	/// <param name="summaryId">Summary ID for testing enumeration validation.</param>
+	/// <param name="summary">Summary ID for testing enumeration validation.</param>
 	[Theory( )]
-	[InlineData( true, false, 25, 4 )] // Default ID
-	[InlineData( false, true, 25, 4 )] // Non-existent ID
-	[InlineData( false, false, -1000, 4 )] // Temperature too low
-	[InlineData( false, false, 1000, 4 )] // Temperature too high
-	[InlineData( false, false, 25, 99 )] // Invalid summary
-	public async Task PutAsync_WithInvalidData_ShouldThrowException( bool useDefaultId, bool useNonExistentId, int temperatureC, int summaryId ) {
+	[InlineData( true, false, 25, "Hot" )] // Default ID
+	[InlineData( false, true, 25, "Hot" )] // Non-existent ID
+	[InlineData( false, false, -1000, "Hot" )] // Temperature too low
+	[InlineData( false, false, 1000, "Hot" )] // Temperature too high
+	[InlineData( false, false, 25, "Invalid" )] // Invalid summary
+	public async Task PutAsync_WithInvalidData_ShouldThrowException( bool useDefaultId, bool useNonExistentId, int temperatureC, string summary ) {
 		// Arrange
 		await MockData( );
 
@@ -411,7 +407,7 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 		var request = new UpdateWeatherForecastRequest {
 			WeatherForecastId = weatherForecastId,
 			TemperatureC = temperatureC,
-			Summary = ( Summary )summaryId
+			Summary = summary
 		};
 
 		// Act

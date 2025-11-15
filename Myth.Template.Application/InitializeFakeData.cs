@@ -40,7 +40,7 @@ public class InitializeFakeData : IHostedService {
 		var weatherForecasts = Enumerable.Range( 0, 1000 ).Select( i => {
 			var date = DateOnly.FromDateTime( DateTime.Now ).AddDays( ( i + 1 ) * -1 );
 			var temperatureC = random.Next( -20, 55 );
-			var summaries = Enum.GetValues( typeof( Summary ) ).Cast<Summary>( ).ToArray( );
+			var summaries = Summary.List.ToArray( );
 			var summary = summaries[ random.Next( summaries.Length ) ];
 			return new WeatherForecast( date, temperatureC, summary );
 		} );
@@ -48,7 +48,9 @@ public class InitializeFakeData : IHostedService {
 		using var scope = _serviceScopeFactory.CreateScope( );
 		var context = scope.ServiceProvider.GetRequiredService<ForecastContext>( );
 
-		await context.Set<WeatherForecast>( ).AddRangeAsync( weatherForecasts, cancellationToken );
+		await context
+			.Set<WeatherForecast>( )
+			.AddRangeAsync( weatherForecasts, cancellationToken );
 
 		await context.SaveChangesAsync( cancellationToken );
 	}

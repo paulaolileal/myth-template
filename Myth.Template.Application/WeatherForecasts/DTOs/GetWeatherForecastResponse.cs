@@ -46,12 +46,22 @@ public record GetWeatherForecastResponse : IMorphableFrom<WeatherForecast> {
 	public string SummaryDescription { get; set; } = null!;
 
 	/// <summary>
+	/// Gets or sets the date and time when the entity was created.
+	/// </summary>
+	public DateTime CreatedAt { get; set; }
+
+	/// <summary>
+	/// Gets or sets the date and time when the entity was last updated.
+	/// </summary>
+	public DateTime? UpdatedAt { get; set; }
+
+	/// <summary>
 	/// Defines the morphing rules for transforming this domain model to a GetWeatherForecastResponse.
 	/// Maps the Summary enumeration to both its string name and integer value in the response.
 	/// </summary>
 	/// <param name="schema">The schema builder used to define property mappings for the transformation.</param>
 	public void MorphFrom( Schema<WeatherForecast> schema ) {
-		schema.Bind( ( ) => SummaryDescription, src => Enum.GetName( src.Summary ) );
-		schema.Bind( ( ) => SummaryId, src => ( int )src.Summary );
+		schema.Bind( ( ) => SummaryDescription, src => src.Summary.Name );
+		schema.Bind( ( ) => SummaryId, src => src.Summary.Value );
 	}
 }

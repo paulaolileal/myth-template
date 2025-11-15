@@ -20,7 +20,7 @@ public class GetAllWeatherForecastQuery : Pagination, IValidatable<GetAllWeather
 	/// When specified, only forecasts with this summary type will be returned.
 	/// </summary>
 	/// <value>An optional Summary enumeration value for filtering results.</value>
-	public Summary? Summary { get; set; }
+	public string? Summary { get; set; }
 
 	/// <summary>
 	/// Gets the optional minimum date filter.
@@ -60,7 +60,7 @@ public class GetAllWeatherForecastQuery : Pagination, IValidatable<GetAllWeather
 	/// <param name="maximumTemperature">Optional maximum temperature filter in Celsius.</param>
 	/// <param name="pagination">Pagination settings including page number and page size.</param>
 	public GetAllWeatherForecastQuery(
-		Summary? summary,
+		string? summary,
 		DateOnly? minimumDate,
 		DateOnly? maximumDate,
 		int? minimumTemperature,
@@ -89,7 +89,7 @@ public class GetAllWeatherForecastQuery : Pagination, IValidatable<GetAllWeather
 			.GreaterThan( 0 ) );
 
 		builder.For( Summary, rules => rules
-			.IsValidNullableEnumValue( ) );
+			.NameExistsInConstant<Summary, int>( ) );
 
 		builder.For( MinimumTemperature, rules => rules
 			.GreaterOrEquals( -100 )

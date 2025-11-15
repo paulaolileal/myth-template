@@ -24,7 +24,10 @@ public class WeatherForecastMap : IEntityTypeConfiguration<WeatherForecast> {
 
 		builder
 			.Property( x => x.Summary )
-			.HasColumnName( "summary" )
+			.HasColumnName( "summary_id" )
+			.HasConversion(
+				p => p.Value,
+				p => Summary.FromValue( p ) )
 			.IsRequired( );
 
 		builder

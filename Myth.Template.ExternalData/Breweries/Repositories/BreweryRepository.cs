@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace Myth.Template.ExternalData.Breweries.Repositories;
 /// Uses the Myth REST client framework to communicate with brewery data providers.
 /// Implements IBreweryRepository interface for brewery data access operations.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class BreweryRepository : IBreweryRepository {
 	/// <summary>
 	/// REST client instance configured for brewery API communications.

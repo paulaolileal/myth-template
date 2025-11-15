@@ -27,7 +27,7 @@ public record UpdateWeatherForecastRequest : IMorphableTo<UpdateWeatherForecastC
 	/// Gets or sets the weather summary for the forecast.
 	/// </summary>
 	/// <value>An enumeration value describing the weather conditions.</value>
-	public Summary Summary { get; set; }
+	public string Summary { get; set; } = null!;
 
 	/// <summary>
 	/// Defines the morphing rules for transforming this DTO to an UpdateWeatherForecastCommand.
