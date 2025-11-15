@@ -7,10 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Myth.Flow.Actions" Version="3.0.5-preview.15" />
-    <PackageReference Include="Myth.Guard" Version="3.0.5-preview.15" />
-    <PackageReference Include="Myth.Morph" Version="3.0.5-preview.15" />
-    <PackageReference Include="Myth.Repository" Version="3.0.5-preview.15" />
+    <PackageReference Include="Myth.Flow.Actions" Version="3.10.0" />
+    <PackageReference Include="Myth.Guard" Version="3.10.0" />
+    <PackageReference Include="Myth.Morph" Version="3.10.0" />
+    <PackageReference Include="Myth.Repository" Version="3.10.0" />
   </ItemGroup>
 
 </Project>
