@@ -1,6 +1,6 @@
 # Myth Template API
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/10.0)
 [![Myth Framework](https://img.shields.io/badge/Myth-blue.svg)](https://github.com/paulaolileal/myth)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -225,9 +225,9 @@ public async Task<BreweryResponseDto> GetRandomBreweryAsync(CancellationToken ca
 ## 🛠️ Technology Stack
 
 ### Core Framework
-- **.NET 8.0** - Latest LTS version
-- **ASP.NET Core 8.0** - High-performance web framework
-- **Entity Framework Core 8.0** - Object-relational mapping
+- **.NET 10.0** - Latest version
+- **ASP.NET Core 10.0** - High-performance web framework
+- **Entity Framework Core 10.0** - Object-relational mapping
 
 ### Myth Framework Ecosystem (v3.0.5-preview.13)
 
@@ -249,7 +249,7 @@ public async Task<BreweryResponseDto> GetRandomBreweryAsync(CancellationToken ca
 
 ### Prerequisites
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - IDE: [Visual Studio 2022](https://visualstudio.microsoft.com/vs/), [JetBrains Rider](https://www.jetbrains.com/rider/), or [VS Code](https://code.visualstudio.com/)
 
 ### Quick Start
@@ -274,6 +274,80 @@ public async Task<BreweryResponseDto> GetRandomBreweryAsync(CancellationToken ca
    - 🌐 **Swagger UI**: [https://localhost:7296/swagger](https://localhost:7296/swagger)
    - 🔍 **Health Check**: [https://localhost:7296/health](https://localhost:7296/health)
    - ⚡ **Sample API**: [https://localhost:7296/api/v1/weatherforecast](https://localhost:7296/api/v1/weatherforecast)
+
+### Template Setup
+
+This repository is a template project. Use the PowerShell setup script to customize it for your project.
+
+#### Prerequisites
+
+- PowerShell 5.0 or higher
+- Git installed
+- .NET 10 SDK installed
+
+#### Basic Usage
+
+```powershell
+# Keeps WeatherForecast examples for reference
+.\Setup-Template.ps1 -Name "MyCompany.MyProject"
+```
+
+#### Clean Setup (removes examples)
+
+```powershell
+# Removes all WeatherForecast examples and creates clean structure
+.\Setup-Template.ps1 -Name "MyCompany.MyProject" -Clean
+```
+
+#### Parameters
+
+- **`-Name`** (required): New project name
+  - Replaces `Myth.Template` in folders, namespaces and files
+  - Can use dots, hyphens and underscores
+  - Example: `"MyCompany.MyProject"`
+
+- **`-Clean`** (optional): Removes WeatherForecast examples
+  - Cleans all WeatherForecast-related files
+  - Creates a base `AppContext` to get started
+  - Leaves clean structure for development
+
+#### What the Script Does
+
+1. **File and folder renaming** - Renames all `Myth.Template.*` folders and files
+2. **Content updating** - Replaces namespaces in `.cs`, `.csproj`, `.slnx`, `.json`, `.resx`, `.md` files
+3. **Cleanup (if `-Clean` specified)** - Removes WeatherForecast examples and creates base AppContext
+4. **Git reinitialization** - Creates new repository with initial commit
+5. **Self-cleanup** - Removes the setup script and documentation files
+
+#### Complete Example
+
+```bash
+# Clone the template
+git clone https://github.com/your-user/myth-template.git my-new-project
+cd my-new-project
+
+# Configure with cleanup
+.\Setup-Template.ps1 -Name "MyCompany.Sales" -Clean
+
+# Configure remote repository
+git remote add origin https://github.com/my-company/sales-api.git
+
+# Verify everything is working
+dotnet build
+```
+
+#### Troubleshooting
+
+**Permission error:**
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Verify result:**
+After execution, check if:
+- All namespaces were renamed
+- Project compiles without errors: `dotnet build`
+- Tests pass: `dotnet test` (if didn't use `-Clean`)
 
 ### Development Setup
 

@@ -1,6 +1,6 @@
 # Myth Template API
 
-[![.NET](https://img.shields.io/badge/.NET-8.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/10.0)
 [![Myth Framework](https://img.shields.io/badge/Myth-blue.svg)](https://github.com/paulaolileal/myth)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
@@ -225,9 +225,9 @@ public async Task<BreweryResponseDto> GetRandomBreweryAsync(CancellationToken ca
 ## 🛠️ Stack Tecnológico
 
 ### Framework Principal
-- **.NET 8.0** - Versão LTS mais recente
-- **ASP.NET Core 8.0** - Framework web de alta performance
-- **Entity Framework Core 8.0** - Mapeamento objeto-relacional
+- **.NET 10.0** - Versão mais recente
+- **ASP.NET Core 10.0** - Framework web de alta performance
+- **Entity Framework Core 10.0** - Mapeamento objeto-relacional
 
 ### Ecossistema Myth Framework (v3.0.5-preview.13)
 
@@ -249,7 +249,7 @@ public async Task<BreweryResponseDto> GetRandomBreweryAsync(CancellationToken ca
 
 ### Pré-requisitos
 
-- [.NET 8.0 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - IDE: [Visual Studio 2022](https://visualstudio.microsoft.com/vs/), [JetBrains Rider](https://www.jetbrains.com/rider/), ou [VS Code](https://code.visualstudio.com/)
 
 ### Início Rápido
@@ -274,6 +274,80 @@ public async Task<BreweryResponseDto> GetRandomBreweryAsync(CancellationToken ca
    - 🌐 **Swagger UI**: [https://localhost:7296/swagger](https://localhost:7296/swagger)
    - 🔍 **Health Check**: [https://localhost:7296/health](https://localhost:7296/health)
    - ⚡ **API de Exemplo**: [https://localhost:7296/api/v1/weatherforecast](https://localhost:7296/api/v1/weatherforecast)
+
+### Configuração do Template
+
+Este repositório é um projeto template. Use o script PowerShell de configuração para personalizá-lo para seu projeto.
+
+#### Pré-requisitos
+
+- PowerShell 5.0 ou superior
+- Git instalado
+- .NET 10 SDK instalado
+
+#### Uso Básico
+
+```powershell
+# Mantém exemplos de WeatherForecast para referência
+.\Setup-Template.ps1 -Name "MinhaEmpresa.MeuProjeto"
+```
+
+#### Configuração Limpa (remove exemplos)
+
+```powershell
+# Remove todos os exemplos de WeatherForecast e cria estrutura limpa
+.\Setup-Template.ps1 -Name "MinhaEmpresa.MeuProjeto" -Clean
+```
+
+#### Parâmetros
+
+- **`-Name`** (obrigatório): Nome do novo projeto
+  - Substitui `Myth.Template` em pastas, namespaces e arquivos
+  - Pode usar pontos, hífens e underscores
+  - Exemplo: `"MinhaEmpresa.MeuProjeto"`
+
+- **`-Clean`** (opcional): Remove exemplos de WeatherForecast
+  - Limpa todos os arquivos relacionados ao WeatherForecast
+  - Cria um `AppContext` base para começar
+  - Deixa estrutura limpa para desenvolvimento
+
+#### O Que o Script Faz
+
+1. **Renomeação de arquivos e pastas** - Renomeia todas as pastas e arquivos `Myth.Template.*`
+2. **Atualização de conteúdo** - Substitui namespaces em arquivos `.cs`, `.csproj`, `.slnx`, `.json`, `.resx`, `.md`
+3. **Limpeza (se `-Clean` especificado)** - Remove exemplos de WeatherForecast e cria AppContext base
+4. **Reinicialização do Git** - Cria novo repositório com commit inicial
+5. **Auto-limpeza** - Remove o script de configuração e arquivos de documentação
+
+#### Exemplo Completo
+
+```bash
+# Clone o template
+git clone https://github.com/seu-usuario/myth-template.git meu-novo-projeto
+cd meu-novo-projeto
+
+# Configure com limpeza
+.\Setup-Template.ps1 -Name "MinhaEmpresa.Vendas" -Clean
+
+# Configure repositório remoto
+git remote add origin https://github.com/minha-empresa/vendas-api.git
+
+# Verifique se tudo está funcionando
+dotnet build
+```
+
+#### Resolução de Problemas
+
+**Erro de permissão:**
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Verificar resultado:**
+Após execução, verifique se:
+- Todos os namespaces foram renomeados
+- Projeto compila sem erros: `dotnet build`
+- Testes passam: `dotnet test` (se não usou `-Clean`)
 
 ### Configuração de Desenvolvimento
 
