@@ -1,3 +1,5 @@
+<img  style="float: right;" src="logo.png" alt="drawing" width="250"/>
+
 # Myth Template API
 
 [![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/10.0)
