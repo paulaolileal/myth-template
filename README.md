@@ -2,9 +2,9 @@
 
 # Myth Template API
 
-[![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg)](https://dotnet.microsoft.com/download/dotnet/10.0)
-[![Myth Framework](https://img.shields.io/badge/Myth-blue.svg)](https://github.com/paulaolileal/myth)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![.NET](https://img.shields.io/badge/.NET-10.0-purple.svg?style=for-the-badge)](https://dotnet.microsoft.com/download/dotnet/10.0)
+[![Myth Framework](https://img.shields.io/badge/Myth-blue.svg?style=for-the-badge)](https://github.com/paulaolileal/myth)
+[![License](https://img.shields.io/badge/license-MIT-green.svg?style=for-the-badge)](LICENSE)
 
 > 🚀 **Enterprise-grade ASP.NET Core API template showcasing the power of the Myth ecosystem**
 
