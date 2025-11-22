@@ -6,6 +6,7 @@ using Myth.DependencyInjection;
 using Myth.Exceptions;
 using Myth.Extensions;
 using Myth.Flow.Actions.Extensions;
+using Myth.Flow.Actions.Settings;
 using Myth.Template.Application.WeatherForecasts.Queries.GetAll;
 using Myth.Template.Data.Contexts;
 using Myth.Template.ExternalData.Breweries.Interfaces;
@@ -35,8 +36,9 @@ public static class ServiceCollectionExtensions {
 			.UseExceptionFilter<ValidationException>( )
 			.UseTelemetry( )
 			.UseRetry( 3 )
-			.UseActions( x => x
+			.UseActions( actionsSettings => actionsSettings
 				.UseInMemory( )
+				.UseCaching( cacheSettings => cacheSettings.ProviderType = CacheProviderType.Memory )
 				.ScanAssemblies(
 					typeof( GetAllWeatherForecastsQueryHandler ).Assembly ) ) );
 
@@ -58,10 +60,11 @@ public static class ServiceCollectionExtensions {
 	public static WebApplicationBuilder AddDocs( this WebApplicationBuilder builder ) {
 		builder.Services.AddEndpointsApiExplorer( );
 
-		builder.Services.AddSwaggerGen( c => {
+		builder.Services.AddSwaggerGen( options => {
+			// Include XML comments from code documentation
 			var xmlFile = $"{Assembly.GetExecutingAssembly( ).GetName( ).Name}.xml";
 			var xmlPath = Path.Combine( AppContext.BaseDirectory, xmlFile );
-			c.IncludeXmlComments( xmlPath );
+			options.IncludeXmlComments( xmlPath );
 		} );
 
 		return builder;

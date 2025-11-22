@@ -65,7 +65,6 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 	/// <param name="maxDate">The maximum date for generated forecasts. Defaults to current date if null.</param>
 	/// <returns>A task that represents the asynchronous mock data creation operation.</returns>
 	private async Task MockData( DateOnly? minDate = null, DateOnly? maxDate = null ) {
-		var random = new Random( );
 		maxDate ??= DateOnly.FromDateTime( DateTime.UtcNow );
 		minDate ??= maxDate.Value.AddDays( -1000 );
 		var amount = maxDate.Value.DayNumber - minDate.Value.DayNumber;
@@ -347,13 +346,12 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 			.First( );
 
 		var request = new UpdateWeatherForecastRequest {
-			WeatherForecastId = existingForecast.WeatherForecastId,
 			TemperatureC = temperatureC,
 			Summary = summary
 		};
 
 		// Act
-		var response = await _controller.PutAsync( request );
+		var response = await _controller.PutAsync( existingForecast.WeatherForecastId, request );
 
 		// Assert
 		var result = response.Should( ).BeOfType<NoContentResult>( ).Which;
@@ -399,13 +397,12 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 			existingForecast.WeatherForecastId;
 
 		var request = new UpdateWeatherForecastRequest {
-			WeatherForecastId = weatherForecastId,
 			TemperatureC = temperatureC,
 			Summary = summary
 		};
 
 		// Act
-		var action = async ( ) => await _controller.PutAsync( request );
+		var action = async ( ) => await _controller.PutAsync( weatherForecastId, request );
 
 		// Assert
 		var result = await action.Should( ).ThrowAsync<ValidationException>( );
@@ -433,12 +430,8 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 			.Set<WeatherForecast>( )
 			.First( );
 
-		var request = new DeleteWeatherForecastRequest {
-			WeatherForecastId = existingForecast.WeatherForecastId
-		};
-
 		// Act
-		var response = await _controller.DeleteAsync( request );
+		var response = await _controller.DeleteAsync( existingForecast.WeatherForecastId );
 
 		// Assert
 		response.Should( ).BeOfType<NoContentResult>( );
@@ -477,12 +470,8 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 			useNonExistentId ? Guid.NewGuid( ) :
 			existingForecast.WeatherForecastId;
 
-		var request = new DeleteWeatherForecastRequest {
-			WeatherForecastId = weatherForecastId
-		};
-
 		// Act
-		var action = async ( ) => await _controller.DeleteAsync( request );
+		var action = async ( ) => await _controller.DeleteAsync( weatherForecastId );
 
 		// Assert
 		var result = await action.Should( ).ThrowAsync<ValidationException>( );

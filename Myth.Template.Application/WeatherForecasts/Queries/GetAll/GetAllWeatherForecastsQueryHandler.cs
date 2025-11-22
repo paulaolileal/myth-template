@@ -16,19 +16,11 @@ namespace Myth.Template.Application.WeatherForecasts.Queries.GetAll;
 /// Retrieves a paginated collection of weather forecasts based on various filtering criteria
 /// and transforms them into response DTOs with pagination information.
 /// </summary>
-public class GetAllWeatherForecastsQueryHandler : IQueryHandler<GetAllWeatherForecastQuery, IPaginated<GetWeatherForecastResponse>> {
-	/// <summary>
-	/// Scoped service wrapper for the weather forecast repository to ensure proper dependency management.
-	/// </summary>
-	private readonly IScopedService<IWeatherForecastRepository> _weatherForecastRepository;
-
-	/// <summary>
-	/// Initializes a new instance of the GetAllWeatherForecastsQueryHandler class.
-	/// </summary>
-	/// <param name="weatherForecastRepository">Scoped service for accessing the weather forecast repository.</param>
-	public GetAllWeatherForecastsQueryHandler( IScopedService<IWeatherForecastRepository> weatherForecastRepository ) {
-		_weatherForecastRepository = weatherForecastRepository;
-	}
+/// <remarks>
+/// Initializes a new instance of the GetAllWeatherForecastsQueryHandler class.
+/// </remarks>
+/// <param name="weatherForecastRepository">Scoped service for accessing the weather forecast repository.</param>
+public class GetAllWeatherForecastsQueryHandler( IScopedService<IWeatherForecastRepository> weatherForecastRepository ) : IQueryHandler<GetAllWeatherForecastQuery, IPaginated<GetWeatherForecastResponse>> {
 
 	/// <summary>
 	/// Handles the execution of a GetAllWeatherForecastQuery by building a specification with the provided filters,
@@ -52,7 +44,7 @@ public class GetAllWeatherForecastsQueryHandler : IQueryHandler<GetAllWeatherFor
 			.OrderDescending( x => x.Date )
 			.WithPagination( query );
 
-		var result = await _weatherForecastRepository.ExecuteAsync( x => x.SearchPaginatedAsync( spec, cancellationToken ) );
+		var result = await weatherForecastRepository.ExecuteAsync( x => x.SearchPaginatedAsync( spec, cancellationToken ) );
 
 		var response = result.To<IPaginated<GetWeatherForecastResponse>>( );
 

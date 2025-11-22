@@ -10,21 +10,12 @@ namespace Myth.Template.Application.WeatherForecasts.Events.Created;
 /// Logs information about newly created weather forecasts for auditing and monitoring purposes.
 /// This handler demonstrates how domain events can be used to trigger cross-cutting concerns.
 /// </summary>
-public class WeatherForecastCreatedEventHandler : IEventHandler<WeatherForecastCreatedEvent> {
-	/// <summary>
-	/// Logger instance for recording information about weather forecast creation events.
-	/// </summary>
-	private readonly ILogger<WeatherForecastCreatedEventHandler> _logger;
-	private readonly IServiceScopeFactory _scopeFactory;
+/// <remarks>
+/// Initializes a new instance of the WeatherForecastCreatedEventHandler class.
+/// </remarks>
+/// <param name="logger">Logger instance for recording event processing information.</param>
+public class WeatherForecastCreatedEventHandler( ILogger<WeatherForecastCreatedEventHandler> logger, IServiceScopeFactory scopeFactory ) : IEventHandler<WeatherForecastCreatedEvent> {
 
-	/// <summary>
-	/// Initializes a new instance of the WeatherForecastCreatedEventHandler class.
-	/// </summary>
-	/// <param name="logger">Logger instance for recording event processing information.</param>
-	public WeatherForecastCreatedEventHandler( ILogger<WeatherForecastCreatedEventHandler> logger, IServiceScopeFactory scopeFactory ) {
-		_logger = logger;
-		_scopeFactory = scopeFactory;
-	}
 
 	/// <summary>
 	/// Handles the WeatherForecastCreatedEvent by logging information about the newly created weather forecast.
@@ -34,13 +25,13 @@ public class WeatherForecastCreatedEventHandler : IEventHandler<WeatherForecastC
 	/// <param name="cancellationToken">Token to monitor for cancellation requests during the operation.</param>
 	/// <returns>A task that represents the asynchronous operation completion.</returns>
 	public async Task HandleAsync( WeatherForecastCreatedEvent @event, CancellationToken cancellationToken = default ) {
-		_logger.LogInformation( "Weather forecast created with ID `{WeatherForecastId}`", @event.WeatherForecastId );
+		logger.LogInformation( "Weather forecast created with ID `{WeatherForecastId}`", @event.WeatherForecastId );
 
-		var provider = _scopeFactory.CreateScope( ).ServiceProvider;
+		var provider = scopeFactory.CreateScope( ).ServiceProvider;
 		var breweryRepository = provider.GetRequiredService<IBreweryRepository>( );
 		var brewery = await breweryRepository.GetRandomBreweryAsync( cancellationToken );
 
-		_logger.LogInformation( "And {BreweryName} has a good beer for this weather!", brewery.Name );
+		logger.LogInformation( "And {BreweryName} has a good beer for this weather!", brewery.Name );
 
 	}
 }

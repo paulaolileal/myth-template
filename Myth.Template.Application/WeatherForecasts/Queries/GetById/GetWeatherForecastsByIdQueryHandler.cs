@@ -15,19 +15,11 @@ namespace Myth.Template.Application.WeatherForecasts.Queries.GetById;
 /// Retrieves a single weather forecast by its identifier and transforms it into a response DTO.
 /// Uses the repository pattern with specifications to query the data store efficiently.
 /// </summary>
-public class GetWeatherForecastsByIdQueryHandler : IQueryHandler<GetWeatherForecastByIdQuery, GetWeatherForecastResponse> {
-	/// <summary>
-	/// Scoped service wrapper for the weather forecast repository to ensure proper dependency management.
-	/// </summary>
-	private readonly IScopedService<IWeatherForecastRepository> _weatherForecastRepository;
-
-	/// <summary>
-	/// Initializes a new instance of the GetWeatherForecastsQueryHandler class.
-	/// </summary>
-	/// <param name="weatherForecastRepository">Scoped service for accessing the weather forecast repository.</param>
-	public GetWeatherForecastsByIdQueryHandler( IScopedService<IWeatherForecastRepository> weatherForecastRepository ) {
-		_weatherForecastRepository = weatherForecastRepository;
-	}
+/// <remarks>
+/// Initializes a new instance of the GetWeatherForecastsQueryHandler class.
+/// </remarks>
+/// <param name="weatherForecastRepository">Scoped service for accessing the weather forecast repository.</param>
+public class GetWeatherForecastsByIdQueryHandler( IScopedService<IWeatherForecastRepository> weatherForecastRepository ) : IQueryHandler<GetWeatherForecastByIdQuery, GetWeatherForecastResponse> {
 
 	/// <summary>
 	/// Handles the execution of a GetWeatherForecastQuery by retrieving the specified weather forecast
@@ -44,7 +36,7 @@ public class GetWeatherForecastsByIdQueryHandler : IQueryHandler<GetWeatherForec
 			.Create( )
 			.WithId( query.WeatherForecastId );
 
-		var result = await _weatherForecastRepository.ExecuteAsync( x => x.FirstOrDefaultAsync( spec, cancellationToken ) );
+		var result = await weatherForecastRepository.ExecuteAsync( x => x.FirstOrDefaultAsync( spec, cancellationToken ) );
 
 		var response = result!.To<GetWeatherForecastResponse>( );
 

@@ -27,9 +27,7 @@ public record DeleteWeatherForecastCommand : ICommand, IValidatable<DeleteWeathe
 	/// Initializes a new instance of the DeleteWeatherForecastCommand record with the specified weather forecast identifier.
 	/// </summary>
 	/// <param name="weatherForecastId">The unique identifier of the weather forecast to delete.</param>
-	public DeleteWeatherForecastCommand( Guid weatherForecastId ) {
-		WeatherForecastId = weatherForecastId;
-	}
+	public DeleteWeatherForecastCommand( Guid weatherForecastId ) => WeatherForecastId = weatherForecastId;
 
 	/// <summary>
 	/// Validates the command properties according to business rules and data constraints.

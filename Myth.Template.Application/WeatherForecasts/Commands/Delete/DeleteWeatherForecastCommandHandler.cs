@@ -14,19 +14,11 @@ namespace Myth.Template.Application.WeatherForecasts.Commands.Delete;
 /// Retrieves the existing weather forecast and permanently removes it from the system.
 /// Uses scoped services to ensure proper transaction handling and data consistency.
 /// </summary>
-public class DeleteWeatherForecastCommandHandler : ICommandHandler<DeleteWeatherForecastCommand> {
-	/// <summary>
-	/// Factory for creating service scopes to manage the lifetime of scoped dependencies.
-	/// </summary>
-	private readonly IServiceScopeFactory _scopeFactory;
-
-	/// <summary>
-	/// Initializes a new instance of the DeleteWeatherForecastCommandHandler class.
-	/// </summary>
-	/// <param name="scopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
-	public DeleteWeatherForecastCommandHandler( IServiceScopeFactory scopeFactory ) {
-		_scopeFactory = scopeFactory;
-	}
+/// <remarks>
+/// Initializes a new instance of the DeleteWeatherForecastCommandHandler class.
+/// </remarks>
+/// <param name="scopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
+public class DeleteWeatherForecastCommandHandler( IServiceScopeFactory scopeFactory ) : ICommandHandler<DeleteWeatherForecastCommand> {
 
 	/// <summary>
 	/// Handles the execution of a DeleteWeatherForecastCommand by retrieving the existing weather forecast
@@ -39,7 +31,7 @@ public class DeleteWeatherForecastCommandHandler : ICommandHandler<DeleteWeather
 	/// indicating the success or failure of the deletion operation.
 	/// </returns>
 	public async Task<CommandResult> HandleAsync( DeleteWeatherForecastCommand command, CancellationToken cancellationToken = default ) {
-		var serviceProvider = _scopeFactory.CreateScope( ).ServiceProvider;
+		var serviceProvider = scopeFactory.CreateScope( ).ServiceProvider;
 
 		var repository = serviceProvider.GetRequiredService<IWeatherForecastRepository>( );
 		var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWorkRepository>( );

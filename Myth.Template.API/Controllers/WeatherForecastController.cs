@@ -10,7 +10,6 @@ using Myth.Template.Application.WeatherForecasts.DTOs;
 using Myth.Template.Application.WeatherForecasts.Events.Created;
 using Myth.Template.Application.WeatherForecasts.Queries.GetAll;
 using Myth.Template.Application.WeatherForecasts.Queries.GetById;
-using Myth.Template.Domain.Models;
 using Myth.ValueObjects;
 
 namespace Myth.Template.API.Controllers;
@@ -51,6 +50,7 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// <param name="minimumTemperature">Optional filter to retrieve forecasts with temperature at or above this value (in Celsius).</param>
 	/// <param name="maximumTemperature">Optional filter to retrieve forecasts with temperature at or below this value (in Celsius).</param>
 	/// <param name="pagination">Pagination parameters including page number and page size for result limiting.</param>
+	/// <param name="cacheControl">Header for control cache state</param>
 	/// <param name="cancellationToken">Token to monitor for cancellation requests during the asynchronous operation.</param>
 	/// <response code="200">Successfully retrieved the paginated weather forecast collection</response>
 	/// <response code="400">Invalid request parameters or validation errors</response>
@@ -120,12 +120,14 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// ```
 	/// </remarks>
 	[HttpGet( "{weatherForecastId}", Name = "GetByIdAsync" )]
-	public async Task<IActionResult> GetByIdAsync( [FromRoute] Guid weatherForecastId, CancellationToken cancellationToken = default ) {
+	public async Task<IActionResult> GetByIdAsync(
+		[FromRoute] Guid weatherForecastId,
+		CancellationToken cancellationToken = default ) {
 		var result = await PipelineExtensions
 			.Start( new GetWeatherForecastByIdQuery( weatherForecastId ) )
 			.TapAsync( pipeline => validator.ValidateAsync( pipeline.CurrentRequest! ) )
 			.Tap( pipeline => logger.LogDebug( "Request validated with success!" ) )
-			.Query<GetWeatherForecastByIdQuery, GetWeatherForecastResponse>( )
+			.Query<GetWeatherForecastByIdQuery, GetWeatherForecastResponse>( ( query, cache ) => cache.UseCache( ) )
 			.Tap( pipeline => logger.LogInformation( "Weather forecast queried for identifier `{WeatherForecastId}` results", pipeline.CurrentRequest!.WeatherForecastId ) )
 			.ExecuteAsync( cancellationToken );
 
@@ -178,7 +180,7 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 		return CreatedAtRoute(
 			nameof( GetByIdAsync ),
 			new {
-				weatherForecastId = result.Value.WeatherForecastId
+				weatherForecastId = result.Value!.WeatherForecastId
 			},
 			result.Value );
 
@@ -187,6 +189,7 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// <summary>
 	/// Updates an existing weather forecast with new data.
 	/// </summary>
+	/// <param name="weatherForecastId">The unique identifier of the weather forecast to update.</param>
 	/// <param name="request">The request object containing the updated weather forecast data including the identifier.</param>
 	/// <param name="cancellationToken">Token to monitor for cancellation requests during the asynchronous operation.</param>
 	/// <response code="204">Weather forecast successfully updated</response>
@@ -204,18 +207,20 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	///
 	/// ## Example
 	/// ```json
-	/// PUT /api/v1/weatherforecast
+	/// PUT /api/v1/weatherforecast/123e4567-e89b-12d3-a456-426614174000
 	/// {
-	///   "weatherForecastId": "123e4567-e89b-12d3-a456-426614174000",
 	///   "temperatureC": 30,
 	///   "summary": "Hot"
 	/// }
 	/// ```
 	/// </remarks>
-	[HttpPut]
-	public async Task<IActionResult> PutAsync( [FromBody] UpdateWeatherForecastRequest request, CancellationToken cancellationToken = default ) {
+	[HttpPut( "{weatherForecastId}" )]
+	public async Task<IActionResult> PutAsync( [FromRoute] Guid weatherForecastId, [FromBody] UpdateWeatherForecastRequest request, CancellationToken cancellationToken = default ) {
 		var result = await PipelineExtensions
-			.Start( request.To<UpdateWeatherForecastCommand>( ) )
+			.Start( new UpdateWeatherForecastCommand(
+				weatherForecastId,
+				request.TemperatureC,
+				request.Summary ) )
 			.TapAsync( pipeline => validator.ValidateAsync( pipeline.CurrentRequest! ) )
 			.Tap( pipeline => logger.LogDebug( "Request validated with success!" ) )
 			.Process( )
@@ -228,7 +233,7 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// <summary>
 	/// Deletes an existing weather forecast from the system.
 	/// </summary>
-	/// <param name="request">The request object containing the identifier of the weather forecast to be deleted.</param>
+	/// <param name="weatherForecastId">The GUID identifier of the weather forecast to remove from the system</param>
 	/// <param name="cancellationToken">Token to monitor for cancellation requests during the asynchronous operation.</param>
 	/// <response code="204">Weather forecast successfully deleted</response>
 	/// <response code="400">Invalid request data or validation errors</response>
@@ -250,10 +255,10 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// }
 	/// ```
 	/// </remarks>
-	[HttpDelete]
-	public async Task<IActionResult> DeleteAsync( [FromBody] DeleteWeatherForecastRequest request, CancellationToken cancellationToken = default ) {
+	[HttpDelete( "{weatherForecastId}" )]
+	public async Task<IActionResult> DeleteAsync( [FromRoute] Guid weatherForecastId, CancellationToken cancellationToken = default ) {
 		var result = await PipelineExtensions
-			.Start( request.To<DeleteWeatherForecastCommand>( ) )
+			.Start( new DeleteWeatherForecastCommand( weatherForecastId ) )
 			.TapAsync( pipeline => validator.ValidateAsync( pipeline.CurrentRequest! ) )
 			.Tap( pipeline => logger.LogDebug( "Request validated with success!" ) )
 			.Process( )

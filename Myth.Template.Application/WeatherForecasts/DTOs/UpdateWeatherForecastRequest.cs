@@ -12,12 +12,6 @@ namespace Myth.Template.Application.WeatherForecasts.DTOs;
 /// </summary>
 public record UpdateWeatherForecastRequest : IMorphableTo<UpdateWeatherForecastCommand> {
 	/// <summary>
-	/// Gets or sets the unique identifier of the weather forecast to update.
-	/// </summary>
-	/// <value>The GUID identifier of the weather forecast to modify.</value>
-	public Guid WeatherForecastId { get; set; }
-
-	/// <summary>
 	/// Gets or sets the temperature in Celsius.
 	/// </summary>
 	/// <value>The temperature measurement in Celsius degrees.</value>

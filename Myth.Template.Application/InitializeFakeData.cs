@@ -11,20 +11,12 @@ namespace Myth.Template.Application;
 /// Runs during application startup to populate the database with sample data for development and testing purposes.
 /// Generates 1000 weather forecast entries with random data spanning historical dates.
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the InitializeMockedData class.
+/// </remarks>
+/// <param name="serviceScopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
 [ExcludeFromCodeCoverage]
-public class InitializeFakeData : IHostedService {
-	/// <summary>
-	/// Factory for creating service scopes to access scoped dependencies like the database context.
-	/// </summary>
-	private readonly IServiceScopeFactory _serviceScopeFactory;
-
-	/// <summary>
-	/// Initializes a new instance of the InitializeMockedData class.
-	/// </summary>
-	/// <param name="serviceScopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
-	public InitializeFakeData( IServiceScopeFactory serviceScopeFactory ) {
-		_serviceScopeFactory = serviceScopeFactory;
-	}
+public class InitializeFakeData( IServiceScopeFactory serviceScopeFactory ) : IHostedService {
 
 	/// <summary>
 	/// Starts the hosted service and initializes the database with mock weather forecast data.
@@ -37,7 +29,7 @@ public class InitializeFakeData : IHostedService {
 	public async Task StartAsync( CancellationToken cancellationToken ) {
 		var data = WeatherForecast.GenerateDataAsync( 1000, cancellationToken );
 
-		using var scope = _serviceScopeFactory.CreateScope( );
+		using var scope = serviceScopeFactory.CreateScope( );
 		var context = scope.ServiceProvider.GetRequiredService<ForecastContext>( );
 
 		await context

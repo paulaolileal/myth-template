@@ -17,27 +17,28 @@ namespace Myth.Template.Application.WeatherForecasts.Commands.Update;
 /// Allows modification of temperature and summary while preserving the original date.
 /// Implements validation rules to ensure data integrity and verify the target forecast exists.
 /// </summary>
-public class UpdateWeatherForecastCommand : ICommand, IValidatable<UpdateWeatherForecastCommand> {
+public class UpdateWeatherForecastCommand( Guid weatherForecastId, int temperatureC, string summary ) : ICommand, IValidatable<UpdateWeatherForecastCommand> {
+
 	/// <summary>
 	/// Gets the unique identifier of the weather forecast to update.
 	/// Must be a valid, non-default GUID that corresponds to an existing weather forecast.
 	/// </summary>
 	/// <value>The GUID identifier of the weather forecast to modify.</value>
-	public Guid WeatherForecastId { get; private set; }
+	public Guid WeatherForecastId { get; private set; } = weatherForecastId;
 
 	/// <summary>
 	/// Gets the temperature in Celsius for the forecast.
 	/// Must be within the valid range of -100 to 100 degrees Celsius.
 	/// </summary>
 	/// <value>The temperature measurement in Celsius degrees.</value>
-	public int TemperatureC { get; private set; }
+	public int TemperatureC { get; private set; } = temperatureC;
 
 	/// <summary>
 	/// Gets the weather summary describing the forecasted conditions.
 	/// Must be a valid enumeration value.
 	/// </summary>
 	/// <value>An enumeration value representing the weather conditions.</value>
-	public string Summary { get; private set; } = null!;
+	public string Summary { get; private set; } = summary;
 
 	/// <summary>
 	/// Validates the command properties according to business rules and data constraints.

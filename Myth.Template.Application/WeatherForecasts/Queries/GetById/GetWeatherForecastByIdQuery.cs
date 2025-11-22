@@ -16,21 +16,17 @@ namespace Myth.Template.Application.WeatherForecasts.Queries.GetById;
 /// Validates that the provided identifier is not empty or default value.
 /// Returns a GetWeatherForecastResponse containing the forecast details.
 /// </summary>
-public class GetWeatherForecastByIdQuery : IValidatable<GetWeatherForecastByIdQuery>, IQuery<GetWeatherForecastResponse> {
+/// <remarks>
+/// Initializes a new instance of the GetWeatherForecastQuery class with the specified weather forecast identifier.
+/// </remarks>
+/// <param name="weatherForecastId">The unique identifier of the weather forecast to retrieve.</param>
+public class GetWeatherForecastByIdQuery( Guid weatherForecastId ) : IValidatable<GetWeatherForecastByIdQuery>, IQuery<GetWeatherForecastResponse> {
 	/// <summary>
 	/// Gets the unique identifier of the weather forecast to retrieve.
 	/// Must be a valid, non-default GUID value.
 	/// </summary>
 	/// <value>The GUID identifier of the weather forecast.</value>
-	public Guid WeatherForecastId { get; private set; }
-
-	/// <summary>
-	/// Initializes a new instance of the GetWeatherForecastQuery class with the specified weather forecast identifier.
-	/// </summary>
-	/// <param name="weatherForecastId">The unique identifier of the weather forecast to retrieve.</param>
-	public GetWeatherForecastByIdQuery( Guid weatherForecastId ) {
-		WeatherForecastId = weatherForecastId;
-	}
+	public Guid WeatherForecastId { get; private set; } = weatherForecastId;
 
 	/// <summary>
 	/// Validates the query parameters to ensure the weather forecast identifier is valid.

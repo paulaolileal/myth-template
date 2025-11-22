@@ -4,25 +4,32 @@ namespace Myth.Template.Domain.Models;
 /// Domain model representing a weather forecast entity.
 /// Contains weather information for a specific date including temperature and summary conditions.
 /// </summary>
-public class WeatherForecast {
+/// <remarks>
+/// Initializes a new instance of the WeatherForecast class with the specified parameters.
+/// Automatically generates a new unique identifier for the instance.
+/// </remarks>
+/// <param name="date">The date for which the forecast applies.</param>
+/// <param name="temperatureC">The temperature in Celsius.</param>
+/// <param name="summary">The weather summary describing the conditions.</param>
+public class WeatherForecast( DateOnly date, int temperatureC, Summary summary ) {
 	/// <summary>
 	/// Gets the unique identifier for the weather forecast.
 	/// This value is automatically generated during construction.
 	/// </summary>
 	/// <value>A GUID that uniquely identifies this weather forecast instance.</value>
-	public Guid WeatherForecastId { get; private set; }
+	public Guid WeatherForecastId { get; private set; } = Guid.NewGuid( );
 
 	/// <summary>
 	/// Gets the date for which this weather forecast applies.
 	/// </summary>
 	/// <value>The date of the weather forecast.</value>
-	public DateOnly Date { get; private set; }
+	public DateOnly Date { get; private set; } = date;
 
 	/// <summary>
 	/// Gets the temperature in Celsius for this forecast.
 	/// </summary>
 	/// <value>The temperature measurement in Celsius degrees.</value>
-	public int TemperatureC { get; private set; }
+	public int TemperatureC { get; private set; } = temperatureC;
 
 	/// <summary>
 	/// Gets the calculated temperature in Fahrenheit.
@@ -35,13 +42,13 @@ public class WeatherForecast {
 	/// Gets the weather summary describing the conditions for this forecast.
 	/// </summary>
 	/// <value>An enumeration value representing the weather conditions.</value>
-	public Summary Summary { get; private set; }
+	public Summary Summary { get; private set; } = summary;
 
 	/// <summary>
 	/// Gets the UTC date and time when this weather forecast was created.
 	/// </summary>
 	/// <value>The creation timestamp in UTC.</value>
-	public DateTime CreatedAt { get; private set; }
+	public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
 
 	/// <summary>
 	/// Gets the UTC date and time when this weather forecast was last updated.
@@ -49,21 +56,6 @@ public class WeatherForecast {
 	/// </summary>
 	/// <value>The last update timestamp in UTC, or null if never updated.</value>
 	public DateTime? UpdatedAt { get; private set; }
-
-	/// <summary>
-	/// Initializes a new instance of the WeatherForecast class with the specified parameters.
-	/// Automatically generates a new unique identifier for the instance.
-	/// </summary>
-	/// <param name="date">The date for which the forecast applies.</param>
-	/// <param name="temperatureC">The temperature in Celsius.</param>
-	/// <param name="summary">The weather summary describing the conditions.</param>
-	public WeatherForecast( DateOnly date, int temperatureC, Summary summary ) {
-		WeatherForecastId = Guid.NewGuid( );
-		Date = date;
-		TemperatureC = temperatureC;
-		Summary = summary;
-		CreatedAt = DateTime.UtcNow;
-	}
 
 	/// <summary>
 	/// Updates the UpdatedAt property to the current UTC time.

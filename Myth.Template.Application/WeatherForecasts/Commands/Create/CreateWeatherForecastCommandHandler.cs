@@ -12,19 +12,11 @@ namespace Myth.Template.Application.WeatherForecasts.Commands.Create;
 /// Creates a new WeatherForecast entity, persists it to the repository, and returns the generated identifier.
 /// Uses scoped services to ensure proper transaction handling and data consistency.
 /// </summary>
-public class CreateWeatherForecastCommandHandler : ICommandHandler<CreateWeatherForecastCommand, Guid> {
-	/// <summary>
-	/// Factory for creating service scopes to manage the lifetime of scoped dependencies.
-	/// </summary>
-	private readonly IServiceScopeFactory _serviceScopeFactory;
-
-	/// <summary>
-	/// Initializes a new instance of the CreateWeatherForecastCommandHandler class.
-	/// </summary>
-	/// <param name="serviceScopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
-	public CreateWeatherForecastCommandHandler( IServiceScopeFactory serviceScopeFactory ) {
-		_serviceScopeFactory = serviceScopeFactory;
-	}
+/// <remarks>
+/// Initializes a new instance of the CreateWeatherForecastCommandHandler class.
+/// </remarks>
+/// <param name="serviceScopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
+public class CreateWeatherForecastCommandHandler( IServiceScopeFactory serviceScopeFactory ) : ICommandHandler<CreateWeatherForecastCommand, Guid> {
 
 	/// <summary>
 	/// Handles the execution of a CreateWeatherForecastCommand by creating a new weather forecast entity,
@@ -42,7 +34,7 @@ public class CreateWeatherForecastCommandHandler : ICommandHandler<CreateWeather
 			command.TemperatureC,
 			Summary.FromName( command.Summary ) );
 
-		var serviceProvider = _serviceScopeFactory.CreateScope( ).ServiceProvider;
+		var serviceProvider = serviceScopeFactory.CreateScope( ).ServiceProvider;
 
 		var repository = serviceProvider.GetRequiredService<IWeatherForecastRepository>( );
 		var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWorkRepository>( );

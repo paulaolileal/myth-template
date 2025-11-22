@@ -14,19 +14,11 @@ namespace Myth.Template.Application.WeatherForecasts.Commands.Update;
 /// Retrieves the existing weather forecast, applies the updates, and persists the changes.
 /// Uses scoped services to ensure proper transaction handling and data consistency.
 /// </summary>
-public class UpdateWeatherForecastCommandHandler : ICommandHandler<UpdateWeatherForecastCommand> {
-	/// <summary>
-	/// Factory for creating service scopes to manage the lifetime of scoped dependencies.
-	/// </summary>
-	private readonly IServiceScopeFactory _scopeFactory;
-
-	/// <summary>
-	/// Initializes a new instance of the UpdateWeatherForecastCommandHandler class.
-	/// </summary>
-	/// <param name="scopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
-	public UpdateWeatherForecastCommandHandler( IServiceScopeFactory scopeFactory ) {
-		_scopeFactory = scopeFactory;
-	}
+/// <remarks>
+/// Initializes a new instance of the UpdateWeatherForecastCommandHandler class.
+/// </remarks>
+/// <param name="scopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
+public class UpdateWeatherForecastCommandHandler( IServiceScopeFactory scopeFactory ) : ICommandHandler<UpdateWeatherForecastCommand> {
 
 	/// <summary>
 	/// Handles the execution of an UpdateWeatherForecastCommand by retrieving the existing weather forecast,
@@ -39,7 +31,7 @@ public class UpdateWeatherForecastCommandHandler : ICommandHandler<UpdateWeather
 	/// indicating the success or failure of the update operation.
 	/// </returns>
 	public async Task<CommandResult> HandleAsync( UpdateWeatherForecastCommand command, CancellationToken cancellationToken = default ) {
-		var serviceProvider = _scopeFactory.CreateScope( ).ServiceProvider;
+		var serviceProvider = scopeFactory.CreateScope( ).ServiceProvider;
 
 		var repository = serviceProvider.GetRequiredService<IWeatherForecastRepository>( );
 		var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWorkRepository>( );

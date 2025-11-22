@@ -15,20 +15,16 @@ namespace Myth.Template.ExternalData.Breweries.Repositories;
 /// Uses the Myth REST client framework to communicate with brewery data providers.
 /// Implements IBreweryRepository interface for brewery data access operations.
 /// </summary>
+/// <remarks>
+/// Initializes a new instance of the BreweryRepository class.
+/// </remarks>
+/// <param name="restFactory">Factory for creating REST client instances configured with brewery API settings.</param>
 [ExcludeFromCodeCoverage]
-public class BreweryRepository : IBreweryRepository {
+public class BreweryRepository( IRestFactory restFactory ) : IBreweryRepository {
 	/// <summary>
 	/// REST client instance configured for brewery API communications.
 	/// </summary>
-	private readonly IRestRequest _client;
-
-	/// <summary>
-	/// Initializes a new instance of the BreweryRepository class.
-	/// </summary>
-	/// <param name="restFactory">Factory for creating REST client instances configured with brewery API settings.</param>
-	public BreweryRepository( IRestFactory restFactory ) {
-		_client = restFactory.Create( "brewery" );
-	}
+	private readonly IRestRequest _client = restFactory.Create( "brewery" );
 
 	/// <summary>
 	/// Retrieves a random brewery from the external brewery API.

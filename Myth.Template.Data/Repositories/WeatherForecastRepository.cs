@@ -10,12 +10,9 @@ namespace Myth.Template.Data.Repositories;
 /// Provides concrete implementation of IWeatherForecastRepository interface with full CRUD operations.
 /// Inherits from ReadWriteRepositoryAsync to leverage standard repository patterns and async operations.
 /// </summary>
-public class WeatherForecastRepository : ReadWriteRepositoryAsync<WeatherForecast>, IWeatherForecastRepository {
-
-	/// <summary>
-	/// Initializes a new instance of the WeatherForecastRepository class.
-	/// </summary>
-	/// <param name="context">The Entity Framework database context for weather forecast data operations.</param>
-	public WeatherForecastRepository( ForecastContext context ) : base( context ) {
-	}
+/// <remarks>
+/// Initializes a new instance of the WeatherForecastRepository class.
+/// </remarks>
+/// <param name="context">The Entity Framework database context for weather forecast data operations.</param>
+public class WeatherForecastRepository( ForecastContext context ) : ReadWriteRepositoryAsync<WeatherForecast>( context ), IWeatherForecastRepository {
 }
