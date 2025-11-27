@@ -1,11 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Myth.Exceptions;
+using Myth.Guard;
 using Myth.Interfaces;
 using Myth.Template.ExternalData.Breweries.DTOs;
+using Myth.Template.ExternalData.Breweries.Exceptions;
 using Myth.Template.ExternalData.Breweries.Interfaces;
 
 namespace Myth.Template.ExternalData.Breweries.Repositories;
@@ -20,7 +20,7 @@ namespace Myth.Template.ExternalData.Breweries.Repositories;
 /// </remarks>
 /// <param name="restFactory">Factory for creating REST client instances configured with brewery API settings.</param>
 [ExcludeFromCodeCoverage]
-public class BreweryRepository( IRestFactory restFactory ) : IBreweryRepository {
+public class BreweryRepository( IRestFactory restFactory, ILogger<BreweryRepository> logger ) : IBreweryRepository {
 	/// <summary>
 	/// REST client instance configured for brewery API communications.
 	/// </summary>
@@ -37,15 +37,31 @@ public class BreweryRepository( IRestFactory restFactory ) : IBreweryRepository 
 	/// </returns>
 	/// <exception cref="HttpRequestException">Thrown when the API request fails or returns a non-success status code.</exception>
 	public async Task<BreweryResponseDto> GetRandomBreweryAsync( CancellationToken cancellationToken ) {
-		var request = await _client
-			.DoGet( "breweries/random" )
-			.OnResult( res => res.UseTypeForSuccess<IEnumerable<BreweryResponseDto>>( ) )
-			.OnError( err => err.ThrowForNonSuccess( ) )
-			.BuildAsync( cancellationToken );
-		;
+		try {
+			var request = await _client
+				.DoGet( "breweries/random" )
+				.OnResult( res => res.UseTypeForSuccess<IEnumerable<BreweryResponseDto>>( ) )
+				.OnError( err => err.ThrowForNonSuccess( ) )
+				.BuildAsync( cancellationToken );
 
-		var breweries = request.GetAs<IEnumerable<BreweryResponseDto>>( );
+			var breweries = request.GetAs<IEnumerable<BreweryResponseDto>>( );
 
-		return breweries.First( );
+			var validation = await Sentry.For( breweries )
+				.NotNull( )
+				.NotEmpty( )
+				.WithMessage( "No exists available brewery for this weather!" )
+				.WithCode( "BAD_WEATHER" )
+				.WithStatusCode( StatusCodes.Status424FailedDependency )
+				.ValidateAsync( cancellationToken: cancellationToken );
+
+			if ( validation.IsValid )
+				logger.LogInformation( "`{BreweriesCount}` breweries found!", breweries.Count( ) );
+			else
+				logger.LogWarning( "No breweries found, with `{CODE}`: {MESSAGE}", validation.FirstError!.Code, validation.FirstError.Message );
+
+			return breweries.First( );
+		} catch ( NonSuccessException exception ) {
+			throw new BreweryException( exception.Message, exception );
+		}
 	}
 }

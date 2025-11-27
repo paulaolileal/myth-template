@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Myth.Builder;
+using Myth.Enums;
 using Myth.Extensions;
 using Myth.Guard;
 using Myth.Interfaces;
@@ -63,6 +64,6 @@ public class UpdateWeatherForecastCommand( Guid weatherForecastId, int temperatu
 			.Between( -100, 100 ) );
 
 		builder.For( Summary, rules => rules
-			.NameExistsInConstant<Summary, int>( ) );
+			.NameExistsInConstant<Summary, int>( ).WithOptions( OptionsType.OnlyName ) );
 	}
 }

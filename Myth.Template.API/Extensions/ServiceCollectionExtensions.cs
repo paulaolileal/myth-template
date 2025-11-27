@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Myth.Constants;
 using Myth.DependencyInjection;
@@ -9,6 +10,7 @@ using Myth.Flow.Actions.Extensions;
 using Myth.Flow.Actions.Settings;
 using Myth.Template.Application.WeatherForecasts.Queries.GetAll;
 using Myth.Template.Data.Contexts;
+using Myth.Template.ExternalData.Breweries.Exceptions;
 using Myth.Template.ExternalData.Breweries.Interfaces;
 using Myth.Template.ExternalData.Breweries.Repositories;
 
@@ -29,7 +31,11 @@ public static class ServiceCollectionExtensions {
 
 		builder.Services.AddMorph( );
 
-		builder.Services.AddGuard( config => config.AutoGuardCommonExceptions( ) );
+		builder.Services.AddGuard( config => config
+			.AutoGuardCommonExceptions( )
+			.Guard<BreweryException>( )
+				.WithStatusCode( StatusCodes.Status424FailedDependency )
+				.WithResponse( ex => ex.Message ) );
 
 		builder.Services.AddFlow( config => config
 			.UseLogging( )
