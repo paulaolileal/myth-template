@@ -15,8 +15,7 @@ using Myth.Template.Data.Contexts;
 using Myth.Template.Domain.Models;
 using Myth.Template.ExternalData.Breweries.Interfaces;
 using Myth.Template.Test.Repositories;
-using Myth.Testing.Extensions;
-using Myth.Testing.Repositories;
+using Myth.Repositories;
 using Myth.ValueObjects;
 
 namespace Myth.Template.Test;

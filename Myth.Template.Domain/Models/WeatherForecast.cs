@@ -58,6 +58,12 @@ public class WeatherForecast( DateOnly date, int temperatureC, Summary summary )
 	public DateTime? UpdatedAt { get; private set; }
 
 	/// <summary>
+	/// Gets the optional identifier of the weather station that recorded this forecast.
+	/// When null, the forecast is not associated with any station.
+	/// </summary>
+	public Guid? WeatherStationId { get; private set; }
+
+	/// <summary>
 	/// Updates the UpdatedAt property to the current UTC time.
 	/// This method is called internally whenever the entity is modified.
 	/// </summary>
@@ -84,6 +90,17 @@ public class WeatherForecast( DateOnly date, int temperatureC, Summary summary )
 	/// <returns>The current WeatherForecast instance for method chaining.</returns>
 	public WeatherForecast ChangeSummary( Summary summary ) {
 		Summary = summary;
+		Update( );
+
+		return this;
+	}
+
+	/// <summary>
+	/// Associates this forecast with the given weather station.
+	/// </summary>
+	/// <param name="stationId">The identifier of the station to assign.</param>
+	public WeatherForecast AssignToStation( Guid stationId ) {
+		WeatherStationId = stationId;
 		Update( );
 
 		return this;

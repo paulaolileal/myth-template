@@ -59,7 +59,13 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// ## Description
 	/// This endpoint demonstrates advanced querying with multiple filter parameters, caching,
 	/// and comprehensive logging throughout the pipeline execution.
-	/// 
+	///
+	/// ## Myth Features used here
+	/// - `Myth.Flow`: `.TapAsync()` — runs the validator as an async pipeline side effect
+	/// - `Myth.Flow`: `.Tap()` — synchronous logger side effect without altering context
+	/// - `Myth.Flow.Actions`: `.Query&lt;T, R&gt;()` with `UseCache()` — dispatches the query and activates response caching
+	/// - `Myth.Guard`: `IValidator.ValidateAsync()` — fluent validation on the query object
+	///
 	/// ## Notes
 	/// This endpoint demonstrates the complete query processing pipeline including validation,
 	/// caching capabilities, and structured filtering for weather forecasts.
@@ -109,7 +115,13 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// <remarks>
 	/// ## Description
 	/// This endpoint demonstrates simple entity retrieval with validation and caching capabilities.
-	/// 
+	///
+	/// ## Myth Features used here
+	/// - `Myth.Flow`: `.TapAsync()` — runs the validator as an async pipeline side effect
+	/// - `Myth.Flow`: `.Tap()` — synchronous logger side effect without altering context
+	/// - `Myth.Flow.Actions`: `.Query&lt;T, R&gt;()` with `UseCache()` — dispatches the query and activates response caching
+	/// - `Myth.Guard`: `IValidator.ValidateAsync()` — fluent validation on the query object
+	///
 	/// ## Notes
 	/// This endpoint demonstrates the query processing pipeline for single entity retrieval,
 	/// including proper validation and caching mechanisms.
@@ -148,7 +160,15 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// ## Description
 	/// This endpoint demonstrates the complete command processing pipeline including validation,
 	/// business logic execution, event publishing, and proper RESTful response creation.
-	/// 
+	///
+	/// ## Myth Features used here
+	/// - `Myth.Morph`: `.To&lt;T&gt;()` — transforms the request DTO into a command object
+	/// - `Myth.Flow`: `.TapAsync()` — runs the validator as an async side effect
+	/// - `Myth.Flow`: `.Tap()` — synchronous logger side effects
+	/// - `Myth.Flow`: `.Transform()` — converts the command result into an event context
+	/// - `Myth.Flow`: `.Publish()` — publishes the domain event via the event bus
+	/// - `Myth.Flow.Actions`: `.Process&lt;TCommand, TResponse&gt;()` — dispatches the create command
+	///
 	/// ## Notes
 	/// This endpoint demonstrates the command processing pipeline for entity creation,
 	/// including validation, business rule enforcement, event publishing, and proper location header response.
@@ -200,7 +220,13 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// ## Description
 	/// This endpoint demonstrates the command processing pipeline for entity modifications,
 	/// including validation and business rule enforcement.
-	/// 
+	///
+	/// ## Myth Features used here
+	/// - `Myth.Flow`: `.TapAsync()` — runs the validator as an async side effect
+	/// - `Myth.Flow`: `.Tap()` — synchronous logger side effects
+	/// - `Myth.Flow.Actions`: `.Process()` — dispatches the update command without a typed response
+	/// - `Myth.Guard`: `IValidator.ValidateAsync()` — fluent validation on the command object
+	///
 	/// ## Notes
 	/// This endpoint demonstrates the command processing pipeline for entity updates,
 	/// including proper validation and business rule enforcement.
@@ -242,7 +268,13 @@ public class WeatherForecastController( IValidator validator, ILogger<WeatherFor
 	/// <remarks>
 	/// ## Description
 	/// This endpoint handles the deletion of a weather forecast entity identified by its unique identifier.
-	/// 
+	///
+	/// ## Myth Features used here
+	/// - `Myth.Flow`: `.TapAsync()` — runs the validator as an async side effect
+	/// - `Myth.Flow`: `.Tap()` — synchronous logger side effects
+	/// - `Myth.Flow.Actions`: `.Process()` — dispatches the delete command
+	/// - `Myth.Guard`: `IValidator.ValidateAsync()` — fluent validation on the command object
+	///
 	/// ## Notes
 	/// This endpoint demonstrates the command processing pipeline for entity removal,
 	/// including proper validation and business rule enforcement.

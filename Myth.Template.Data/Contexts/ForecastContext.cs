@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Myth.Contexts;
+using Myth.Template.Domain.Models;
 
 namespace Myth.Template.Data.Contexts;
 
@@ -13,4 +14,7 @@ namespace Myth.Template.Data.Contexts;
 /// </remarks>
 /// <param name="options">The database context options containing connection string and provider configuration.</param>
 public class ForecastContext( DbContextOptions options ) : BaseContext( options ) {
+
+	/// <summary>Gets the DbSet for weather station entities.</summary>
+	public DbSet<WeatherStation> WeatherStations { get; set; } = null!;
 }

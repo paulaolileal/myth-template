@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using Myth.Extensions;
 using Myth.Template.API.Extensions;
 using Myth.Template.Application;
+using Myth.ValueProviders;
 
 namespace Myth.Template.API;
 
@@ -25,6 +26,15 @@ internal class Program {
 		builder.Services.AddHostedService<InitializeFakeData>( );
 
 		var app = builder.BuildApp( );
+
+		// TypeProvider (Myth.DependencyInjection): after the app is built, all assemblies are loaded.
+		// Log the total number of application types discovered — this is the same set
+		// that AddServiceFromType<T>() and ScanAssemblies() use internally.
+		var startupLogger = app.Services.GetRequiredService<ILogger<Program>>( );
+		startupLogger.LogInformation(
+			"[Myth.DI] TypeProvider discovered {TypeCount} types across {AssemblyCount} application assemblies",
+			TypeProvider.ApplicationTypes.Count( ),
+			TypeProvider.ApplicationAssemblies.Count( ) );
 
 		if ( app.Environment.IsDevelopment( ) ) {
 			app.UseSwagger( );

@@ -10,6 +10,7 @@ using Myth.Flow.Actions.Extensions;
 using Myth.Flow.Actions.Settings;
 using Myth.Template.Application.WeatherForecasts.Queries.GetAll;
 using Myth.Template.Data.Contexts;
+using Myth.Template.Domain.Interfaces;
 using Myth.Template.ExternalData.Breweries.Exceptions;
 using Myth.Template.ExternalData.Breweries.Interfaces;
 using Myth.Template.ExternalData.Breweries.Repositories;
@@ -78,6 +79,14 @@ public static class ServiceCollectionExtensions {
 
 	/// <summary>
 	/// Configures database services including Entity Framework context, repositories, and unit of work.
+	/// <para>
+	/// Demonstrates <c>AddServiceFromType&lt;T&gt;()</c> from <c>Myth.DependencyInjection</c>:
+	/// instead of <c>AddRepositories()</c> (which auto-discovers all repos by convention),
+	/// each repository is registered explicitly with <c>AddServiceFromType</c>.
+	/// Both approaches use <see cref="Myth.ValueProviders.TypeProvider"/> internally to resolve
+	/// implementations by naming convention (e.g., <c>IWeatherForecastRepository</c> →
+	/// <c>WeatherForecastRepository</c>).
+	/// </para>
 	/// </summary>
 	/// <param name="builder">The web application builder to configure.</param>
 	/// <returns>The configured web application builder.</returns>
@@ -85,7 +94,12 @@ public static class ServiceCollectionExtensions {
 		builder.Services.AddDbContext<ForecastContext>( options => options
 			.UseInMemoryDatabase( "database" ), ServiceLifetime.Scoped, ServiceLifetime.Singleton );
 
-		builder.Services.AddRepositories( );
+		// Myth.DependencyInjection: AddServiceFromType<T> registers all implementations
+		// of T found by TypeProvider scanning application assemblies.
+		// Convention: interface name must contain the concrete type's name
+		// (e.g., IWeatherForecastRepository → WeatherForecastRepository).
+		builder.Services.AddServiceFromType<IWeatherForecastRepository>( );
+		builder.Services.AddServiceFromType<IWeatherStationRepository>( );
 
 		builder.Services.AddScoped<IBreweryRepository, BreweryRepository>( );
 

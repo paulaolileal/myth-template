@@ -34,5 +34,10 @@ public class WeatherForecastMap : IEntityTypeConfiguration<WeatherForecast> {
 			.Property( x => x.TemperatureC )
 			.HasColumnName( "temperature_c" )
 			.IsRequired( );
+
+		builder
+			.Property( x => x.WeatherStationId )
+			.HasColumnName( "weather_station_id" )
+			.IsRequired( false );
 	}
 }
