@@ -19,7 +19,7 @@ namespace Myth.Template.Application.WeatherForecasts.Queries.GetById;
 /// Initializes a new instance of the GetWeatherForecastsQueryHandler class.
 /// </remarks>
 /// <param name="weatherForecastRepository">Scoped service for accessing the weather forecast repository.</param>
-public class GetWeatherForecastsByIdQueryHandler( IScopedService<IWeatherForecastRepository> weatherForecastRepository ) : IQueryHandler<GetWeatherForecastByIdQuery, GetWeatherForecastResponse> {
+public class GetWeatherForecastsByIdQueryHandler( IWeatherForecastRepository weatherForecastRepository ) : IQueryHandler<GetWeatherForecastByIdQuery, GetWeatherForecastResponse> {
 
 	/// <summary>
 	/// Handles the execution of a GetWeatherForecastQuery by retrieving the specified weather forecast
@@ -36,7 +36,7 @@ public class GetWeatherForecastsByIdQueryHandler( IScopedService<IWeatherForecas
 			.Create( )
 			.WithId( query.WeatherForecastId );
 
-		var result = await weatherForecastRepository.ExecuteAsync( x => x.FirstOrDefaultAsync( spec, cancellationToken ) );
+		var result = await weatherForecastRepository.FirstOrDefaultAsync( spec, cancellationToken  );
 
 		var response = result!.To<GetWeatherForecastResponse>( );
 

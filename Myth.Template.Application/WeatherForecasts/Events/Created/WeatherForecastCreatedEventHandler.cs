@@ -14,7 +14,8 @@ namespace Myth.Template.Application.WeatherForecasts.Events.Created;
 /// Initializes a new instance of the WeatherForecastCreatedEventHandler class.
 /// </remarks>
 /// <param name="logger">Logger instance for recording event processing information.</param>
-public class WeatherForecastCreatedEventHandler( ILogger<WeatherForecastCreatedEventHandler> logger, IServiceScopeFactory scopeFactory ) : IEventHandler<WeatherForecastCreatedEvent> {
+/// <param name="breweryRepository">The repository for managing brewery entities.</param>
+public class WeatherForecastCreatedEventHandler( ILogger<WeatherForecastCreatedEventHandler> logger, IBreweryRepository breweryRepository ) : IEventHandler<WeatherForecastCreatedEvent> {
 
 
 	/// <summary>
@@ -27,8 +28,6 @@ public class WeatherForecastCreatedEventHandler( ILogger<WeatherForecastCreatedE
 	public async Task HandleAsync( WeatherForecastCreatedEvent @event, CancellationToken cancellationToken = default ) {
 		logger.LogInformation( "Weather forecast created with ID `{WeatherForecastId}`", @event.WeatherForecastId );
 
-		var provider = scopeFactory.CreateScope( ).ServiceProvider;
-		var breweryRepository = provider.GetRequiredService<IBreweryRepository>( );
 		var brewery = await breweryRepository.GetRandomBreweryAsync( cancellationToken );
 
 		logger.LogInformation( "And {BreweryName} has a good beer for this weather!", brewery.Name );

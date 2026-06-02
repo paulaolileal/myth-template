@@ -41,7 +41,6 @@ public class GetWeatherForecastByIdQuery( Guid weatherForecastId ) : IValidatabl
 
 			.RespectAsync( ( value, cancellationToken, provider ) => provider.GetRequiredService<IScopedService<IWeatherForecastRepository>>( ).ExecuteAsync( x => x.AnyAsync( x => x.WeatherForecastId == value, cancellationToken ) ) )
 			.WithMessage( value => string.Format( Messages.NotFound, value ) )
-			.WithStatusCode( HttpStatusCode.NotFound )
-			.WithCode( ValidationCodes.NotFound ) );
+			.WithStatusCode( HttpStatusCode.NotFound ) );
 	}
 }

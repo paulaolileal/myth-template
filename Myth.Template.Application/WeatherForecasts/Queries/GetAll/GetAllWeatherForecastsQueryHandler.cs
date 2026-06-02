@@ -20,7 +20,7 @@ namespace Myth.Template.Application.WeatherForecasts.Queries.GetAll;
 /// Initializes a new instance of the GetAllWeatherForecastsQueryHandler class.
 /// </remarks>
 /// <param name="weatherForecastRepository">Scoped service for accessing the weather forecast repository.</param>
-public class GetAllWeatherForecastsQueryHandler( IScopedService<IWeatherForecastRepository> weatherForecastRepository ) : IQueryHandler<GetAllWeatherForecastQuery, IPaginated<GetWeatherForecastResponse>> {
+public class GetAllWeatherForecastsQueryHandler(IWeatherForecastRepository weatherForecastRepository ) : IQueryHandler<GetAllWeatherForecastQuery, IPaginated<GetWeatherForecastResponse>> {
 
 	/// <summary>
 	/// Handles the execution of a GetAllWeatherForecastQuery by building a specification with the provided filters,
@@ -44,7 +44,7 @@ public class GetAllWeatherForecastsQueryHandler( IScopedService<IWeatherForecast
 			.OrderDescending( x => x.Date )
 			.WithPagination( query );
 
-		var result = await weatherForecastRepository.ExecuteAsync( x => x.SearchPaginatedAsync( spec, cancellationToken ) );
+		var result = await weatherForecastRepository.SearchPaginatedAsync( spec, cancellationToken );
 
 		var response = result.To<IPaginated<GetWeatherForecastResponse>>( );
 

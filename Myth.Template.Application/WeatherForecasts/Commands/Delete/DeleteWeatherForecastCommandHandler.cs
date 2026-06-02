@@ -17,8 +17,9 @@ namespace Myth.Template.Application.WeatherForecasts.Commands.Delete;
 /// <remarks>
 /// Initializes a new instance of the DeleteWeatherForecastCommandHandler class.
 /// </remarks>
-/// <param name="scopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
-public class DeleteWeatherForecastCommandHandler( IServiceScopeFactory scopeFactory ) : ICommandHandler<DeleteWeatherForecastCommand> {
+/// <param name="weatherForecastRepository">The repository for managing weather forecast entities.</param>
+/// <param name="unitOfWorkRepository">The repository for managing unit of work operations.</param>
+public class DeleteWeatherForecastCommandHandler( IWeatherForecastRepository weatherForecastRepository, IUnitOfWorkRepository unitOfWorkRepository ) : ICommandHandler<DeleteWeatherForecastCommand> {
 
 	/// <summary>
 	/// Handles the execution of a DeleteWeatherForecastCommand by retrieving the existing weather forecast
@@ -31,20 +32,15 @@ public class DeleteWeatherForecastCommandHandler( IServiceScopeFactory scopeFact
 	/// indicating the success or failure of the deletion operation.
 	/// </returns>
 	public async Task<CommandResult> HandleAsync( DeleteWeatherForecastCommand command, CancellationToken cancellationToken = default ) {
-		var serviceProvider = scopeFactory.CreateScope( ).ServiceProvider;
-
-		var repository = serviceProvider.GetRequiredService<IWeatherForecastRepository>( );
-		var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWorkRepository>( );
-
 		var spec = SpecBuilder<WeatherForecast>
 			.Create( )
 			.WithId( command.WeatherForecastId );
 
-		var weatherForecast = await repository.FirstAsync( spec, cancellationToken );
+		var weatherForecast = await weatherForecastRepository.FirstAsync( spec, cancellationToken );
 
-		await repository.RemoveAsync( weatherForecast, cancellationToken );
+		await weatherForecastRepository.RemoveAsync( weatherForecast, cancellationToken );
 
-		await unitOfWork.SaveChangesAsync( cancellationToken );
+		await unitOfWorkRepository.SaveChangesAsync( cancellationToken );
 
 		return CommandResult.Success( );
 	}

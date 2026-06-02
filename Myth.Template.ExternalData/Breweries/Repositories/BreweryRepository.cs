@@ -50,14 +50,13 @@ public class BreweryRepository( IRestFactory restFactory, ILogger<BreweryReposit
 				.NotNull( )
 				.NotEmpty( )
 				.WithMessage( "No exists available brewery for this weather!" )
-				.WithCode( "BAD_WEATHER" )
 				.WithStatusCode( StatusCodes.Status424FailedDependency )
 				.ValidateAsync( cancellationToken: cancellationToken );
 
 			if ( validation.IsValid )
 				logger.LogInformation( "`{BreweriesCount}` breweries found!", breweries.Count( ) );
 			else
-				logger.LogWarning( "No breweries found, with `{CODE}`: {MESSAGE}", validation.FirstError!.Code, validation.FirstError.Message );
+				logger.LogWarning( "No breweries found, with `{CODE}`: {MESSAGE}", validation.FirstError!.StatusCode, validation.FirstError.Message );
 
 			return breweries.First( );
 		} catch ( NonSuccessException exception ) {

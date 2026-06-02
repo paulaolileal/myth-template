@@ -17,8 +17,9 @@ namespace Myth.Template.Application.WeatherForecasts.Commands.Update;
 /// <remarks>
 /// Initializes a new instance of the UpdateWeatherForecastCommandHandler class.
 /// </remarks>
-/// <param name="scopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
-public class UpdateWeatherForecastCommandHandler( IServiceScopeFactory scopeFactory ) : ICommandHandler<UpdateWeatherForecastCommand> {
+/// <param name="weatherForecastRepository">The repository for managing weather forecast entities.</param>
+/// <param name="unitOfWorkRepository">The repository for managing unit of work operations.</param>
+public class UpdateWeatherForecastCommandHandler( IWeatherForecastRepository weatherForecastRepository, IUnitOfWorkRepository unitOfWorkRepository ) : ICommandHandler<UpdateWeatherForecastCommand> {
 
 	/// <summary>
 	/// Handles the execution of an UpdateWeatherForecastCommand by retrieving the existing weather forecast,
@@ -31,24 +32,19 @@ public class UpdateWeatherForecastCommandHandler( IServiceScopeFactory scopeFact
 	/// indicating the success or failure of the update operation.
 	/// </returns>
 	public async Task<CommandResult> HandleAsync( UpdateWeatherForecastCommand command, CancellationToken cancellationToken = default ) {
-		var serviceProvider = scopeFactory.CreateScope( ).ServiceProvider;
-
-		var repository = serviceProvider.GetRequiredService<IWeatherForecastRepository>( );
-		var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWorkRepository>( );
-
 		var spec = SpecBuilder<WeatherForecast>
 			.Create( )
 			.WithId( command.WeatherForecastId );
 
-		var weatherForecast = await repository.FirstAsync( spec, cancellationToken );
+		var weatherForecast = await weatherForecastRepository.FirstAsync( spec, cancellationToken );
 
 		weatherForecast
 			.ChangeSummary( Summary.FromName( command.Summary ) )
 			.ChangeTemperatureC( command.TemperatureC );
 
-		await repository.UpdateAsync( weatherForecast, cancellationToken );
+		await weatherForecastRepository.UpdateAsync( weatherForecast, cancellationToken );
 
-		await unitOfWork.SaveChangesAsync( cancellationToken );
+		await unitOfWorkRepository.SaveChangesAsync( cancellationToken );
 
 		return CommandResult.Success( );
 	}

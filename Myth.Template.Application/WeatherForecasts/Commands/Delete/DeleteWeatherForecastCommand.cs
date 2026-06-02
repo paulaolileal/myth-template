@@ -44,7 +44,6 @@ public record DeleteWeatherForecastCommand : ICommand, IValidatable<DeleteWeathe
 				.GetRequiredService<IScopedService<IWeatherForecastRepository>>( )
 				.ExecuteAsync( service => service.AnyAsync( x => x.WeatherForecastId == weatherForecastId, cancellationToken ) ) )
 			.WithMessage( value => string.Format( Messages.NotFound, value ) )
-			.WithCode( ValidationCodes.NotFound )
 			.WithStatusCode( HttpStatusCode.NotFound ) );
 	}
 }

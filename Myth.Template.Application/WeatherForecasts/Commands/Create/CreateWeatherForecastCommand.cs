@@ -65,7 +65,6 @@ public class CreateWeatherForecastCommand : ICommand<Guid>, IValidatable<CreateW
 				return await repository.ExecuteAsync( x => x.AllAsync( spec, ct ) );
 			} )
 			.WithStatusCode( HttpStatusCode.Conflict )
-			.WithCode( ValidationCodes.Conflict )
 			.WithMessage( value => string.Format( Messages.Conflict, value ) ) );
 
 		builder.For( TemperatureC, rules => rules

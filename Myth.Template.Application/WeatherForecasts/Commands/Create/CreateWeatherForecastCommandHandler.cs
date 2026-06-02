@@ -15,8 +15,9 @@ namespace Myth.Template.Application.WeatherForecasts.Commands.Create;
 /// <remarks>
 /// Initializes a new instance of the CreateWeatherForecastCommandHandler class.
 /// </remarks>
-/// <param name="serviceScopeFactory">Factory for creating service scopes to resolve scoped dependencies.</param>
-public class CreateWeatherForecastCommandHandler( IServiceScopeFactory serviceScopeFactory ) : ICommandHandler<CreateWeatherForecastCommand, Guid> {
+/// <param name="weatherForecastRepository">The repository for managing weather forecast entities.</param>
+/// <param name="unitOfWorkRepository">The repository for managing unit of work operations.</param>
+public class CreateWeatherForecastCommandHandler( IWeatherForecastRepository weatherForecastRepository, IUnitOfWorkRepository unitOfWorkRepository ) : ICommandHandler<CreateWeatherForecastCommand, Guid> {
 
 	/// <summary>
 	/// Handles the execution of a CreateWeatherForecastCommand by creating a new weather forecast entity,
@@ -34,14 +35,9 @@ public class CreateWeatherForecastCommandHandler( IServiceScopeFactory serviceSc
 			command.TemperatureC,
 			Summary.FromName( command.Summary ) );
 
-		var serviceProvider = serviceScopeFactory.CreateScope( ).ServiceProvider;
+		await weatherForecastRepository.AddAsync( weatherForecast, cancellationToken );
 
-		var repository = serviceProvider.GetRequiredService<IWeatherForecastRepository>( );
-		var unitOfWork = serviceProvider.GetRequiredService<IUnitOfWorkRepository>( );
-
-		await repository.AddAsync( weatherForecast, cancellationToken );
-
-		await unitOfWork.SaveChangesAsync( cancellationToken );
+		await unitOfWorkRepository.SaveChangesAsync( cancellationToken );
 
 		return CommandResult<Guid>.Success( weatherForecast.WeatherForecastId );
 	}

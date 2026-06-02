@@ -57,7 +57,6 @@ public class UpdateWeatherForecastCommand( Guid weatherForecastId, int temperatu
 				.GetRequiredService<IScopedService<IWeatherForecastRepository>>( )
 				.ExecuteAsync( service => service.AnyAsync( x => x.WeatherForecastId == weatherForecastId, cancellationToken ) ) )
 			.WithMessage( value => string.Format( Messages.NotFound, value ) )
-			.WithCode( ValidationCodes.NotFound )
 			.WithStatusCode( HttpStatusCode.NotFound ) );
 
 		builder.For( TemperatureC, rules => rules
