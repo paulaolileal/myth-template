@@ -25,6 +25,7 @@ namespace Myth.Template.Test;
 /// Tests all CRUD operations including validation scenarios, error handling, and business logic.
 /// Inherits from BaseDatabaseTests to provide in-memory database testing capabilities.
 /// </summary>
+[Collection( "SequentialTests" )]
 public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 	/// <summary>
 	/// The controller instance under test, initialized with all required dependencies.

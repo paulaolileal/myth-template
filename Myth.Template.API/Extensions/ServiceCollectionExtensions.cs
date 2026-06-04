@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Myth.Constants;
 using Myth.DependencyInjection;
 using Myth.Exceptions;
@@ -92,7 +93,9 @@ public static class ServiceCollectionExtensions {
 	/// <returns>The configured web application builder.</returns>
 	public static WebApplicationBuilder AddDatabase( this WebApplicationBuilder builder ) {
 		builder.Services.AddDbContext<ForecastContext>( options => options
-			.UseInMemoryDatabase( "database" ), ServiceLifetime.Scoped, ServiceLifetime.Singleton );
+			.UseInMemoryDatabase( "database" )
+			.ConfigureWarnings( x => x.Ignore( InMemoryEventId.TransactionIgnoredWarning ) ),
+			ServiceLifetime.Scoped, ServiceLifetime.Singleton );
 
 		// Myth.DependencyInjection: AddServiceFromType<T> registers all implementations
 		// of T found by TypeProvider scanning application assemblies.

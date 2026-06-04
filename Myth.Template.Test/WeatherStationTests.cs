@@ -25,6 +25,7 @@ namespace Myth.Template.Test;
 /// error handling, and business logic such as Activate, Decommission, and batch creation.
 /// Inherits from BaseDatabaseTests to provide in-memory database testing capabilities.
 /// </summary>
+[Collection( "SequentialTests" )]
 public class WeatherStationTests : BaseDatabaseTests<ForecastContext> {
 	/// <summary>The controller instance under test, initialized with all required dependencies.</summary>
 	private readonly WeatherStationController _controller;
