@@ -163,10 +163,9 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 			maximumTemperature,
 			pagination );
 
-		// Assert
-		var result = await action.Should( ).ThrowAsync<ValidationException>( );
-
-		var response = result.Which;
+		// Assert — .Query<T,R>() uses Transform internally, so ValidationException is wrapped in PipelineException
+		var thrown = await action.Should( ).ThrowAsync<PipelineException>( );
+		var response = thrown.Which.GetBaseException( ).Should( ).BeOfType<ValidationException>( ).Which;
 
 		response.Message.Should( ).NotBeEmpty( );
 		response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.BadRequest );
@@ -218,10 +217,9 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 		// Act
 		var action = async ( ) => await _controller.GetByIdAsync( nonExistentId );
 
-		// Assert
-		var result = await action.Should( ).ThrowAsync<ValidationException>( );
-
-		var response = result.Which;
+		// Assert — .Query<T,R>() uses Transform internally, so ValidationException is wrapped in PipelineException
+		var thrown = await action.Should( ).ThrowAsync<PipelineException>( );
+		var response = thrown.Which.GetBaseException( ).Should( ).BeOfType<ValidationException>( ).Which;
 
 		response.Message.Should( ).NotBeEmpty( );
 		response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.BadRequest );
@@ -241,10 +239,9 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 		// Act
 		var action = async ( ) => await _controller.GetByIdAsync( nonExistentId );
 
-		// Assert
-		var result = await action.Should( ).ThrowAsync<ValidationException>( );
-
-		var response = result.Which;
+		// Assert — .Query<T,R>() uses Transform internally, so ValidationException is wrapped in PipelineException
+		var thrown = await action.Should( ).ThrowAsync<PipelineException>( );
+		var response = thrown.Which.GetBaseException( ).Should( ).BeOfType<ValidationException>( ).Which;
 
 		response.Message.Should( ).NotBeEmpty( );
 		response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.NotFound );
@@ -314,10 +311,9 @@ public class WeatherForecastTests : BaseDatabaseTests<ForecastContext> {
 		// Act
 		var action = async ( ) => await _controller.PostAsync( request );
 
-		// Assert
-		var result = await action.Should( ).ThrowAsync<ValidationException>( );
-
-		var response = result.Which;
+		// Assert — .Process<T,R>() uses Transform internally, so ValidationException is wrapped in PipelineException
+		var thrown = await action.Should( ).ThrowAsync<PipelineException>( );
+		var response = thrown.Which.GetBaseException( ).Should( ).BeOfType<ValidationException>( ).Which;
 
 		response.Message.Should( ).NotBeEmpty( );
 		response.ValidationResult.StatusCode.Should( ).Be( HttpStatusCode.BadRequest );
