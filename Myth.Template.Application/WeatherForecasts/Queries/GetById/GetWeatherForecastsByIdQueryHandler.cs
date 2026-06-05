@@ -36,7 +36,7 @@ public class GetWeatherForecastsByIdQueryHandler( IWeatherForecastRepository wea
 			.Create( )
 			.WithId( query.WeatherForecastId );
 
-		var result = await weatherForecastRepository.FirstOrDefaultAsync( spec, cancellationToken  );
+		var result = await weatherForecastRepository.FirstOrDefaultAsync( spec, cancellationToken );
 
 		var response = result!.To<GetWeatherForecastResponse>( );
 

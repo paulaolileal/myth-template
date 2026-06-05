@@ -6,6 +6,7 @@ using Myth.Exceptions;
 using Myth.Extensions;
 using Myth.Flow.Actions.Extensions;
 using Myth.Models.Results;
+using Myth.Repositories;
 using Myth.Template.API.Controllers;
 using Myth.Template.Application.WeatherStations.Commands.CreateWithForecasts;
 using Myth.Template.Application.WeatherStations.DTOs;
@@ -14,7 +15,6 @@ using Myth.Template.Data.Contexts;
 using Myth.Template.Domain.Models;
 using Myth.Template.ExternalData.Breweries.Interfaces;
 using Myth.Template.Test.Repositories;
-using Myth.Repositories;
 using Myth.ValueObjects;
 
 namespace Myth.Template.Test;
@@ -65,7 +65,8 @@ public class WeatherStationTests : BaseDatabaseTests<ForecastContext> {
 		string name = "Test Station Alpha",
 		string location = "Lat 45.1234, Lon -93.5678" ) {
 		var station = new WeatherStation( name, location );
-		if ( !isActive ) station.Deactivate( );
+		if ( !isActive )
+			station.Deactivate( );
 		await GetContext( ).AddAsync( station );
 		await SaveChangesAsync( CancellationToken.None );
 		return station;
@@ -240,9 +241,9 @@ public class WeatherStationTests : BaseDatabaseTests<ForecastContext> {
 
 		// Assert
 		var result = response.Should( ).BeOfType<CreatedAtRouteResult>( ).Which;
-		result.StatusCode.Should( ).Be( (int)HttpStatusCode.Created );
+		result.StatusCode.Should( ).Be( ( int )HttpStatusCode.Created );
 
-		var stationId = (Guid)result.Value!;
+		var stationId = ( Guid )result.Value!;
 		var context = await GetContextAsync( );
 		var item = context.Set<WeatherStation>( ).First( x => x.WeatherStationId == stationId );
 
@@ -322,7 +323,7 @@ public class WeatherStationTests : BaseDatabaseTests<ForecastContext> {
 
 		// Assert
 		var result = response.Should( ).BeOfType<NoContentResult>( ).Which;
-		result.StatusCode.Should( ).Be( (int)HttpStatusCode.NoContent );
+		result.StatusCode.Should( ).Be( ( int )HttpStatusCode.NoContent );
 
 		var updatedContext = await GetContextAsync( );
 		var updated = updatedContext.Set<WeatherStation>( ).First( x => x.WeatherStationId == existing.WeatherStationId );
@@ -387,7 +388,7 @@ public class WeatherStationTests : BaseDatabaseTests<ForecastContext> {
 		// Assert
 		response.Should( ).BeOfType<NoContentResult>( );
 		var result = response as NoContentResult;
-		result!.StatusCode.Should( ).Be( (int)HttpStatusCode.NoContent );
+		result!.StatusCode.Should( ).Be( ( int )HttpStatusCode.NoContent );
 
 		var updatedContext = await GetContextAsync( );
 		var deleted = updatedContext.Set<WeatherStation>( ).FirstOrDefault( x => x.WeatherStationId == existing.WeatherStationId );
@@ -441,7 +442,7 @@ public class WeatherStationTests : BaseDatabaseTests<ForecastContext> {
 		// Assert
 		response.Should( ).BeOfType<NoContentResult>( );
 		var result = response as NoContentResult;
-		result!.StatusCode.Should( ).Be( (int)HttpStatusCode.NoContent );
+		result!.StatusCode.Should( ).Be( ( int )HttpStatusCode.NoContent );
 
 		var updatedContext = await GetContextAsync( );
 		var updated = updatedContext.Set<WeatherStation>( ).First( x => x.WeatherStationId == existing.WeatherStationId );
@@ -533,7 +534,7 @@ public class WeatherStationTests : BaseDatabaseTests<ForecastContext> {
 		// Assert
 		response.Should( ).BeOfType<NoContentResult>( );
 		var result = response as NoContentResult;
-		result!.StatusCode.Should( ).Be( (int)HttpStatusCode.NoContent );
+		result!.StatusCode.Should( ).Be( ( int )HttpStatusCode.NoContent );
 
 		var updatedContext = await GetContextAsync( );
 		var updated = updatedContext.Set<WeatherStation>( ).First( x => x.WeatherStationId == existing.WeatherStationId );
@@ -631,9 +632,9 @@ public class WeatherStationTests : BaseDatabaseTests<ForecastContext> {
 
 		// Assert
 		var result = response.Should( ).BeOfType<CreatedAtRouteResult>( ).Which;
-		result.StatusCode.Should( ).Be( (int)HttpStatusCode.Created );
+		result.StatusCode.Should( ).Be( ( int )HttpStatusCode.Created );
 
-		var stationId = (Guid)result.Value!;
+		var stationId = ( Guid )result.Value!;
 		stationId.Should( ).NotBeEmpty( "handler should return a valid station identifier" );
 
 		var context = await GetContextAsync( );

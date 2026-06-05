@@ -20,7 +20,7 @@ namespace Myth.Template.Application.WeatherForecasts.Queries.GetAll;
 /// Initializes a new instance of the GetAllWeatherForecastsQueryHandler class.
 /// </remarks>
 /// <param name="weatherForecastRepository">Scoped service for accessing the weather forecast repository.</param>
-public class GetAllWeatherForecastsQueryHandler(IWeatherForecastRepository weatherForecastRepository ) : IQueryHandler<GetAllWeatherForecastQuery, IPaginated<GetWeatherForecastResponse>> {
+public class GetAllWeatherForecastsQueryHandler( IWeatherForecastRepository weatherForecastRepository ) : IQueryHandler<GetAllWeatherForecastQuery, IPaginated<GetWeatherForecastResponse>> {
 
 	/// <summary>
 	/// Handles the execution of a GetAllWeatherForecastQuery by building a specification with the provided filters,

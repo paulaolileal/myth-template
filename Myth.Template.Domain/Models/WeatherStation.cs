@@ -99,8 +99,8 @@ public class WeatherStation( string name, string location ) : IValidatable<Weath
 	public static IEnumerable<WeatherStation> GenerateDataAsync( int amount, CancellationToken cancellationToken ) {
 		var random = new Random( );
 
-		var prefixes = new[] { "North", "South", "East", "West", "Central", "Upper", "Lower", "Mountain", "Coastal", "Valley" };
-		var suffixes = new[] { "Ridge", "Peak", "Bay", "Plains", "Delta", "Plateau", "Canyon", "Coast", "Highlands", "Basin" };
+		var prefixes = new[ ] { "North", "South", "East", "West", "Central", "Upper", "Lower", "Mountain", "Coastal", "Valley" };
+		var suffixes = new[ ] { "Ridge", "Peak", "Bay", "Plains", "Delta", "Plateau", "Canyon", "Coast", "Highlands", "Basin" };
 
 		return Enumerable.Range( 0, amount ).Select( i => {
 			var prefix = prefixes[ random.Next( prefixes.Length ) ];

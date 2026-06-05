@@ -7,6 +7,7 @@ using Myth.Exceptions;
 using Myth.Extensions;
 using Myth.Flow.Actions.Extensions;
 using Myth.Models.Results;
+using Myth.Repositories;
 using Myth.Template.API.Controllers;
 using Myth.Template.Application.WeatherForecasts.DTOs;
 using Myth.Template.Application.WeatherForecasts.Events.Created;
@@ -15,7 +16,6 @@ using Myth.Template.Data.Contexts;
 using Myth.Template.Domain.Models;
 using Myth.Template.ExternalData.Breweries.Interfaces;
 using Myth.Template.Test.Repositories;
-using Myth.Repositories;
 using Myth.ValueObjects;
 
 namespace Myth.Template.Test;
